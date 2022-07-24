@@ -18,18 +18,17 @@ namespace worLib {
 
     private:
         FreeDPacket freed_packet_;
-
         ServerUdpSocket server_;
 
         std::thread *receiving_thread_;
-
         std::thread *parsing_thread_;
 
         bool speaker_activity_;
 
         void startParse();
+
     public:
-        bool startReader(const std::string& local_ip, int16_t local_port);
+        bool startReader(const std::string &local_ip, int16_t local_port);
 
         bool stopReader();
 

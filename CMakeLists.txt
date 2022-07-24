@@ -13,3 +13,18 @@ add_executable(TrackingCameraSpeaker TCS_UserExample.cpp
 
 target_link_libraries(TrackingCameraSpeaker ws2_32)
 target_link_libraries(TrackingCameraSpeaker iphlpapi.lib)
+
+add_executable(TrackingCameraSpeaker_DLLUserExample TCSDll_UserExample.cpp
+        DllMethods.h)
+
+add_library(TrackingCameraSpeaker_DLL MODULE
+        lib/FreeD/CameraData.cpp lib/FreeD/CameraData.h
+        lib/FreeD/FreedPacket.cpp lib/FreeD/FreedPacket.h
+        lib/FreeD/PartialBuffer.cpp lib/FreeD/PartialBuffer.h
+        lib/Socket/BaseSocket.cpp lib/Socket/BaseSocket.h
+        lib/Socket/ServerUdpSocket.cpp lib/Socket/ServerUdpSocket.h
+        TrackingSpeaker.cpp TrackingSpeaker.h
+        Wrapper/TrackingCameraSpeakerWrapper.cpp Wrapper/TrackingCameraSpeakerWrapper.h)
+
+target_link_libraries(TrackingCameraSpeaker_DLL ws2_32)
+target_link_libraries(TrackingCameraSpeaker_DLL iphlpapi.lib)

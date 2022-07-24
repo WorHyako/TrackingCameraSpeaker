@@ -12,7 +12,7 @@ namespace worLib {
         stopReader();
     }
 
-    bool TrackingSpeaker::startReader(const std::string& local_ip, int16_t local_port) {
+    bool TrackingSpeaker::startReader(const std::string &local_ip, int16_t local_port) {
         if (!server_.openSocket(local_ip, local_port)) {
             speaker_activity_ = false;
             return false;
@@ -39,12 +39,11 @@ namespace worLib {
     void TrackingSpeaker::startParse() {
         while (speaker_activity_) {
             std::vector<unsigned char> data_varray = server_.getDataInStlVector();
-            if(data_varray.empty()) continue;
+            if (data_varray.empty()) continue;
 
             std::array<unsigned char, FREED_PACKET_LENGTH> data_array{};
             std::copy(data_varray.begin(), data_varray.end(), data_array.begin());
-//            if (!server_.getDataInStlVector().empty())
-                freed_packet_.parseData(data_array);
+            freed_packet_.parseData(data_array);
 
             Sleep(1);
         }
