@@ -1,62 +1,62 @@
-#include "ServerUdpSocket.h"
+#include "ServerUdpSocket.hpp"
 
-namespace worLib {
+using namespace worLib;
 
-    ServerUdpSocket::ServerUdpSocket(const std::string &local_ip, const int16_t &local_port, int buffer_length)
-            : BaseSocket(local_ip, local_port, buffer_length) {
+ServerUdpSocket::ServerUdpSocket(const std::string &localIp, int16_t localPort_, int bufferLength_)
+        : BaseSocket(localIp, localPort_, bufferLength_) {
+}
+
+ServerUdpSocket::ServerUdpSocket(const std::string &localIp_, int16_t localPort_,
+                                 const std::string &destinationIp_, int16_t destinationPort_,
+                                 int bufferLength_)
+        : BaseSocket(localIp_, localPort_, destinationIp_, destinationPort_, bufferLength_) {
+}
+
+ServerUdpSocket::~ServerUdpSocket() {
+    if (_activity) {
+        _activity = false;
+        closeSocket();
     }
+}
 
-    ServerUdpSocket::ServerUdpSocket(const std::string &local_ip, const int16_t &local_port,
-                                     const std::string &destination_ip, const int16_t &destination_port,
-                                     int buffer_length)
-            : BaseSocket(local_ip, local_port, destination_ip, destination_port, buffer_length) {
+bool ServerUdpSocket::openSocket(const std::string &localIp_, int16_t localPort_) {
+    _netParameters._localIp = localIp_;
+    _netParameters._localPort = localPort_;
+    sockaddr_in localSockAddr;
+    localSockAddr.sin_family = AF_INET;
+    localSockAddr.sin_addr.s_addr = inet_addr(_netParameters._localIp.c_str());
+    localSockAddr.sin_port = htons(_netParameters._localPort);
+
+    if (WSAStartup(MAKEWORD(2, 2), &_wsaData)) {
+        return false;
     }
+    _socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (_socket == SOCKET_ERROR) {
+        return false;
+    }
+    if (bind(_socket, (const sockaddr *) &localSockAddr, sizeof(sockaddr_in)) == SOCKET_ERROR) {
+        return false;
+    }
+    _activity = true;
+    return true;
+}
 
-    ServerUdpSocket::~ServerUdpSocket() {
-        if (activity_) {
-            activity_ = false;
-            closeSocket();
+bool ServerUdpSocket::closeSocket() {
+    if (_activity) {
+        _activity = false;
+        if (closesocket(_socket) == SOCKET_ERROR) {
+            return false;
+        }
+        if (WSACleanup() == SOCKET_ERROR) {
+            return false;
         }
     }
+    return true;
+}
 
-    bool ServerUdpSocket::openSocket(const std::string &local_ip, int16_t local_port) {
-        net_parameters_.local_ip_ = local_ip;
-        net_parameters_.local_port_ = local_port;
-        sockaddr_in local_sockaddr;
-        local_sockaddr.sin_family = AF_INET;
-        local_sockaddr.sin_addr.s_addr = inet_addr(net_parameters_.local_ip_.c_str());
-        local_sockaddr.sin_port = htons(net_parameters_.local_port_);
-
-        if (WSAStartup(MAKEWORD(2, 2), &wsadata_))
-            return false;
-
-        socket_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-        if (socket_ == SOCKET_ERROR)
-            return false;
-
-        if (bind(socket_, (const sockaddr *) &local_sockaddr, sizeof(sockaddr_in)) == SOCKET_ERROR)
-            return false;
-
-        activity_ = true;
-        return true;
-    }
-
-    bool ServerUdpSocket::closeSocket() {
-        if (activity_) {
-            activity_ = false;
-            if (closesocket(socket_) == SOCKET_ERROR)
-                return false;
-
-            if (WSACleanup() == SOCKET_ERROR)
-                return false;
-        }
-        return true;
-    }
-
-    void ServerUdpSocket::startReceivingData() {
-        while (activity_) {
-            recv(socket_, buffer_, buffer_length_, 0);
-            Sleep(1000 / SOCKET_FPS);
-        }
+void ServerUdpSocket::startReceivingData() {
+    while (_activity) {
+        recv(_socket, _buffer, _bufferLength, 0);
+        Sleep(1000 / SOCKET_FPS);
     }
 }

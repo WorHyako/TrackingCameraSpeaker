@@ -1,152 +1,205 @@
-#include "FreedPacket.h"
+#include "FreedPacket.hpp"
 
-namespace worLib {
+using namespace worLib;
 
-    void FreeDPacket::parseData(std::array<unsigned char, FREED_PACKET_LENGTH> data) {
-        CameraData new_camera_data;
-        partialBuffer_.tryToAppendNewData(data);
-        if (!(partialBuffer_.packet_complete_ && partialBuffer_.packet_valid_)) return;
-
-        new_camera_data.rz_ =
-                parseAngle(partialBuffer_.buffer_[2], partialBuffer_.buffer_[3], partialBuffer_.buffer_[4]);
-        new_camera_data.ry_ =
-                parseAngle(partialBuffer_.buffer_[5], partialBuffer_.buffer_[6], partialBuffer_.buffer_[7]);
-        new_camera_data.rx_ =
-                parseAngle(partialBuffer_.buffer_[8], partialBuffer_.buffer_[9], partialBuffer_.buffer_[10]);
-        new_camera_data.x_ =
-                parseLocation(partialBuffer_.buffer_[11], partialBuffer_.buffer_[12], partialBuffer_.buffer_[13]);
-        new_camera_data.y_ =
-                parseLocation(partialBuffer_.buffer_[14], partialBuffer_.buffer_[15], partialBuffer_.buffer_[16]);
-        new_camera_data.z_ =
-                parseLocation(partialBuffer_.buffer_[17], partialBuffer_.buffer_[18], partialBuffer_.buffer_[19]);
-        new_camera_data.zoom_ =
-                parseLens(partialBuffer_.buffer_[20], partialBuffer_.buffer_[21], partialBuffer_.buffer_[22]);
-        new_camera_data.focus_ =
-                parseLens(partialBuffer_.buffer_[23], partialBuffer_.buffer_[24], partialBuffer_.buffer_[25]);
-
-        camera_data_ = new_camera_data;
+void FreeDPacket::parseData(std::array<byte, FREED_PACKET_LENGTH> data_) {
+    CameraData newCameraData;
+    _partialBuffer.tryToAppendNewData(data_);
+    if (!(_partialBuffer._packetComplete && _partialBuffer._packetValid)) {
+        return;
     }
+    newCameraData._rz =
+            parseAngle(_partialBuffer._buffer[2], _partialBuffer._buffer[3], _partialBuffer._buffer[4]);
+    newCameraData._ry =
+            parseAngle(_partialBuffer._buffer[5], _partialBuffer._buffer[6], _partialBuffer._buffer[7]);
+    newCameraData._rx =
+            parseAngle(_partialBuffer._buffer[8], _partialBuffer._buffer[9], _partialBuffer._buffer[10]);
+    newCameraData._x =
+            parseLocation(_partialBuffer._buffer[11], _partialBuffer._buffer[12], _partialBuffer._buffer[13]);
+    newCameraData._y =
+            parseLocation(_partialBuffer._buffer[14], _partialBuffer._buffer[15], _partialBuffer._buffer[16]);
+    newCameraData._z =
+            parseLocation(_partialBuffer._buffer[17], _partialBuffer._buffer[18], _partialBuffer._buffer[19]);
+    newCameraData._zoom =
+            parseLens(_partialBuffer._buffer[20], _partialBuffer._buffer[21], _partialBuffer._buffer[22]);
+    newCameraData._focus =
+            parseLens(_partialBuffer._buffer[23], _partialBuffer._buffer[24], _partialBuffer._buffer[25]);
 
-    float FreeDPacket::parseAngle(unsigned char &a, unsigned char &b, unsigned char &c) const {
-        bool negative_sign = (a & 0b10000000) > 0;
-        float value;
-        int int_part;
-        float frac_part;
+    _cameraData = newCameraData;
+}
 
-        if (camera_data_.use_fracture_) {
-            if (negative_sign) {
-                int_part = ((~a & 0b01111111) << 1) | ((~b & 0b10000000) >> 7);
-                frac_part = static_cast<float>((((b & 0b01111111) << 8) | c) & 0b0111111111111111) / 0b0111111111111111;
-                frac_part = 1 - frac_part;
-            } else {
-                int_part = ((a & 0b01111111) << 1) | ((b & 0b10000000) >> 7);
-                frac_part = static_cast<float>((((b & 0b01111111) << 8) | c) & 0b0111111111111111) / 0b0111111111111111;
-            }
-            value = static_cast<float>(int_part) + frac_part;
+float FreeDPacket::parseAngle(byte &a_, byte &b_, byte &c_) const {
+    const bool negativeSign = (a_ & 0b10000000) > 0;
+    float value;
+    int intPart;
+    float fracPart;
+
+    if (_cameraData._useFracture) {
+        if (negativeSign) {
+            intPart = ((~a_ & 0b01111111) << 1) | ((~b_ & 0b10000000) >> 7);
+            fracPart =
+                    static_cast<float>((((b_ & 0b01111111) << 8) | c_) & 0b0111111111111111) / 0b0111111111111111;
+            fracPart = 1 - fracPart;
         } else {
-            int temp = ((((a & 0b01111111) << 16) | (b << 8) | c) & 0b011111111111111111111111);
-            if (negative_sign) {
-                temp = (~temp) & 0b011111111111111111111111;
-            }
-            value = static_cast<float>(temp) / 32768.0f;
+            intPart = ((a_ & 0b01111111) << 1) | ((b_ & 0b10000000) >> 7);
+            fracPart =
+                    static_cast<float>((((b_ & 0b01111111) << 8) | c_) & 0b0111111111111111) / 0b0111111111111111;
         }
-        return negative_sign ? -value : value;
+        value = static_cast<float>(intPart) + fracPart;
+    } else {
+        int temp = ((((a_ & 0b01111111) << 16) | (b_ << 8) | c_) & 0b011111111111111111111111);
+        if (negativeSign) {
+            temp = (~temp) & 0b011111111111111111111111;
+        }
+        value = static_cast<float>(temp) / 32768.0f;
     }
+    return negativeSign ? -value : value;
+}
 
-    float FreeDPacket::parseLocation(unsigned char &a, unsigned char &b, unsigned char &c) const {
-        bool negative_sign = (a & 0b10000000) > 0;
-        float value;
-        int int_part;
-        float frac_part;
+float FreeDPacket::parseLocation(byte &a_, byte &b_, byte &c_) const {
+    const bool negativeSign = (a_ & 0b10000000) > 0;
+    float value;
+    int intPart;
+    float fracPart;
 
-        if (camera_data_.use_fracture_) {
-            if (negative_sign) {
-                int_part = ((~a & 0b01111111) << 10) | ((~b & 0b11111111) << 2) | ((~c & 0b11000000) >> 2);
-                frac_part = static_cast<float>(c & 0b00111111) / 0b00111111;
-                frac_part = 1 - frac_part;
-            } else {
-                int_part = ((a & 0b01111111) << 10) | ((b & 0b11111111) << 2) | ((c & 0b11000000) >> 2);
-                frac_part = static_cast<float>(c & 0b00111111) / 0b00111111;
-            }
-            value = static_cast<float>(int_part) + frac_part;
+    if (_cameraData._useFracture) {
+        if (negativeSign) {
+            intPart = ((~a_ & 0b01111111) << 10) | ((~b_ & 0b11111111) << 2) | ((~c_ & 0b11000000) >> 2);
+            fracPart = static_cast<float>(c_ & 0b00111111) / 0b00111111;
+            fracPart = 1 - fracPart;
         } else {
-            int temp = ((((a & 0b01111111) << 16) | (b << 8) | c) & 0b011111111111111111111111);
-            if (negative_sign)
-                temp = (~temp) & 0b011111111111111111111111;
-
-            value = static_cast<float>(temp) / 64.0f;
+            intPart = ((a_ & 0b01111111) << 10) | ((b_ & 0b11111111) << 2) | ((c_ & 0b11000000) >> 2);
+            fracPart = static_cast<float>(c_ & 0b00111111) / 0b00111111;
         }
-        return negative_sign ? -value : value;
+        value = static_cast<float>(intPart) + fracPart;
+    } else {
+        int temp = ((((a_ & 0b01111111) << 16) | (b_ << 8) | c_) & 0b011111111111111111111111);
+        if (negativeSign) {
+            temp = (~temp) & 0b011111111111111111111111;
+        }
+        value = static_cast<float>(temp) / 64.0f;
     }
+    return negativeSign ? -value : value;
+}
 
-    int FreeDPacket::parseLens(unsigned char &a, unsigned char &b, unsigned char &c) const {
-        if (camera_data_.use_fracture_)
-            return ((b << 8) | c);
-        else {
-            bool sign = (a & 0b10000000) > 0;
-            int temp = (a << 16) | (b << 8) | c;
+int FreeDPacket::parseLens(byte &a_, byte &b_, byte &c_) const {
+    if (_cameraData._useFracture) {
+        return ((b_ << 8) | c_);
+    } else {
+        const bool sign = (a_ & 0b10000000) > 0;
+        int temp = (a_ << 16) | (b_ << 8) | c_;
 
-            if (sign)
-                temp = (~temp) & 0b111111111111111111111111;
-
-            return sign ? -temp : temp;
+        if (sign) {
+            temp = (~temp) & 0b111111111111111111111111;
         }
-    }
-
-    std::ostream &operator<<(std::ostream &os, const FreeDPacket &freeDPacket) {
-        os << "Completed camera data:";
-        switch (freeDPacket.os_flag_) {
-            using std::cout;
-            case FreeDPacket::loc_rot_lens:
-                cout << "\nx: " << freeDPacket.camera_data_.x_
-                     << "\ny: " << freeDPacket.camera_data_.y_
-                     << "\nz: " << freeDPacket.camera_data_.z_;
-                cout << "\npan: " << freeDPacket.camera_data_.rz_
-                     << "\ntilt: " << freeDPacket.camera_data_.rx_
-                     << "\nroll: " << freeDPacket.camera_data_.ry_;
-                cout << "\nzoom: " << freeDPacket.camera_data_.zoom_
-                     << "\nfocus: " << freeDPacket.camera_data_.focus_;
-                break;
-            case FreeDPacket::loc_rot:
-                cout << "\nx: " << freeDPacket.camera_data_.x_
-                     << "\ny: " << freeDPacket.camera_data_.y_
-                     << "\nz: " << freeDPacket.camera_data_.z_;
-                cout << "\npan: " << freeDPacket.camera_data_.rz_
-                     << "\ntilt: " << freeDPacket.camera_data_.rx_
-                     << "\nroll: " << freeDPacket.camera_data_.ry_;
-                break;
-            case FreeDPacket::loc:
-                cout << "\nx: " << freeDPacket.camera_data_.x_
-                     << "\ny: " << freeDPacket.camera_data_.y_
-                     << "\nz: " << freeDPacket.camera_data_.z_;
-                break;
-            case FreeDPacket::rot:
-                cout << "\npan: " << freeDPacket.camera_data_.rz_
-                     << "\ntilt: " << freeDPacket.camera_data_.rx_
-                     << "\nroll: " << freeDPacket.camera_data_.ry_;
-                break;
-            case FreeDPacket::lens:
-                cout << "\nzoom: " << freeDPacket.camera_data_.zoom_
-                     << "\nfocus: " << freeDPacket.camera_data_.focus_;
-                break;
-            case FreeDPacket::rot_lens:
-                cout << "\npan: " << freeDPacket.camera_data_.rz_
-                     << "\ntilt: " << freeDPacket.camera_data_.rx_
-                     << "\nroll: " << freeDPacket.camera_data_.ry_;
-                cout << "\nzoom: " << freeDPacket.camera_data_.zoom_
-                     << "\nfocus: " << freeDPacket.camera_data_.focus_;
-                break;
-            case FreeDPacket::loc_lens:
-                cout << "\nx: " << freeDPacket.camera_data_.x_
-                     << "\ny: " << freeDPacket.camera_data_.y_
-                     << "\nz: " << freeDPacket.camera_data_.z_;
-                cout << "\nzoom: " << freeDPacket.camera_data_.zoom_
-                     << "\nfocus: " << freeDPacket.camera_data_.focus_;
-                break;
-            default:
-                cout << "\nERROR: Unknown flag";
-                break;
-        }
-        return os;
+        return sign ? -temp : temp;
     }
 }
+
+std::ostream &worLib::operator<<(std::ostream &os_, const FreeDPacket &freeDPacket_) {
+    os_ << "\nCompleted camera data:";
+    switch (freeDPacket_._streamFlag) {
+        using std::cout;
+        case FreeDPacket::CameraDataType::LOC_ROT_LENS:
+            cout << freeDPacket_.getLocationViaString()
+                 << freeDPacket_.getRotationViaString()
+                 << freeDPacket_.getLensViaString();
+            break;
+        case FreeDPacket::CameraDataType::LOC_ROT:
+            cout << freeDPacket_.getLocationViaString()
+                 << freeDPacket_.getRotationViaString();
+            break;
+        case FreeDPacket::CameraDataType::LOC:
+            cout << freeDPacket_.getLocationViaString();
+            break;
+        case FreeDPacket::CameraDataType::ROT:
+            cout << freeDPacket_.getRotationViaString();
+            break;
+        case FreeDPacket::CameraDataType::LENS:
+            cout << freeDPacket_.getLensViaString();
+            break;
+        case FreeDPacket::CameraDataType::ROT_LENS:
+            cout << freeDPacket_.getRotationViaString()
+                 << freeDPacket_.getLensViaString();
+            break;
+        case FreeDPacket::CameraDataType::LOC_LENS:
+            cout << freeDPacket_.getLocationViaString()
+                 << freeDPacket_.getLensViaString();
+            break;
+        default:
+            cout << "\nERROR: Unknown flag_";
+            break;
+    }
+    return os_;
+}
+
+std::string FreeDPacket::getRotationViaString() const {
+    std::stringstream ss;
+    ss << "\npan: " << _cameraData._rz
+       << "\ntilt: " << _cameraData._rx
+       << "\nroll: " << _cameraData._ry;
+    return ss.str();
+}
+
+std::string FreeDPacket::getLocationViaString() const {
+    std::stringstream ss;
+    ss << "\nx: " << _cameraData._x
+       << "\ny: " << _cameraData._y
+       << "\nz: " << _cameraData._z;
+    return ss.str();
+}
+
+std::string FreeDPacket::getLensViaString() const {
+    std::stringstream ss;
+    ss << "\nzoom: " << _cameraData._zoom
+       << "\nfocus: " << _cameraData._focus;
+    return ss.str();
+}
+
+#pragma region Accessors
+
+float FreeDPacket::getRz() const {
+    return _cameraData._rz;
+}
+
+float FreeDPacket::getRy() const {
+    return _cameraData._ry;
+}
+
+float FreeDPacket::getRx() const {
+    return _cameraData._rx;
+}
+
+float FreeDPacket::getX() const {
+    return _cameraData._x;
+}
+
+float FreeDPacket::getY() const {
+    return _cameraData._y;
+}
+
+float FreeDPacket::getZ() const {
+    return _cameraData._z;
+}
+
+int FreeDPacket::getZoom() const {
+    return _cameraData._zoom;
+}
+
+int FreeDPacket::getFocus() const {
+    return _cameraData._focus;
+}
+
+bool FreeDPacket::getUseFracture() const {
+    return _cameraData._useFracture;
+}
+
+#pragma endregion Accessors
+
+#pragma region Mutators
+
+void FreeDPacket::setUseFracture(bool fracture_) {
+    _cameraData._useFracture = fracture_;
+}
+
+#pragma endregion Mutators

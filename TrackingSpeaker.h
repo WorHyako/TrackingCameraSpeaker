@@ -1,8 +1,8 @@
 #ifndef TRACKINGCAMERASPEAKER_TRACKINGSPEAKER_H
 #define TRACKINGCAMERASPEAKER_TRACKINGSPEAKER_H
 
-#include "lib/Socket/ServerUdpSocket.h"
-#include "lib/FreeD/FreedPacket.h"
+#include "lib/Socket/ServerUdpSocket.hpp"
+#include "lib/FreeD/FreedPacket.hpp"
 
 #include <thread>
 
@@ -14,51 +14,59 @@ namespace worLib {
 
         ~TrackingSpeaker();
 
-        friend std::ostream &operator<<(std::ostream &os, const TrackingSpeaker &reader);
+        friend std::ostream &operator<<(std::ostream &os_, const TrackingSpeaker &reader_);
 
     private:
-        FreeDPacket freed_packet_;
-        ServerUdpSocket server_;
+        FreeDPacket _freedPacket;
+        ServerUdpSocket _server;
 
-        std::thread *receiving_thread_;
-        std::thread *parsing_thread_;
+        std::thread *_receivingThread;
+        std::thread *_parsingThread;
 
-        bool speaker_activity_;
+        bool _speakerActivity;
 
         void startParse();
 
     public:
-        bool startReader(const std::string &local_ip, int16_t local_port);
+        bool startReader(const std::string &localIp_, int16_t localPort_);
 
         bool stopReader();
 
-        std::string getLocalIp() const { return server_.getNetParameters().local_ip_; }
+#pragma region Accessors
 
-        short int getLocalPort() const { return server_.getNetParameters().local_port_; }
+        std::string getLocalIp() const;
 
-        bool getServerActivity() const { return server_.activity_; }
+        short int getLocalPort() const;
 
-        bool getSpeakerActivity() const { return speaker_activity_; }
+        bool getServerActivity() const;
 
-        float getRz() const { return freed_packet_.getRz(); }
+        bool getSpeakerActivity() const;
 
-        float getRy() const { return freed_packet_.getRy(); }
+        float getRz() const;
 
-        float getRx() const { return freed_packet_.getRx(); }
+        float getRy() const;
 
-        float getX() const { return freed_packet_.getX(); }
+        float getRx() const;
 
-        float getY() const { return freed_packet_.getY(); }
+        float getX() const;
 
-        float getZ() const { return freed_packet_.getZ(); }
+        float getY() const;
 
-        int getZoom() const { return freed_packet_.getZoom(); }
+        float getZ() const;
 
-        int getFocus() const { return freed_packet_.getFocus(); }
+        int getZoom() const;
 
-        bool getUseFracture() const { return freed_packet_.getUseFracture(); }
+        int getFocus() const;
 
-        void setOsFlag(FreeDPacket::camera_data_type flag) { freed_packet_.os_flag_ = flag; }
+        bool getUseFracture() const;
+
+#pragma endregion Accessors
+
+#pragma region Mutators
+
+        void setOsFlag(FreeDPacket::CameraDataType flag_);
+
+#pragma endregion Mutators
     };
 }
 #endif

@@ -1,69 +1,67 @@
-#include "TrackingCameraSpeakerWrapper.h"
+#include "TrackingCameraSpeakerWrapper.hpp"
 
 #define CHECK_PTR(ptr) if(!ptr) return false;
 #define CHECK_PTR_WITH_VAL(ptr, value) return ptr ? value : 0;
 
-namespace worLib {
-    const std::string password = "CameraLikesTracking";
-    const std::string password_path = "C:/Program Files (x86)/.password";
-}
+const std::string password = "CameraLikesTracking";
+const std::string passwordPath = "C:/Program Files (x86)/.password";
 
 bool initializeSpeaker() {
-    if (ptr_wrapper) return false;
+    CHECK_PTR(ptrWrapper)
     // Simple way to set password. U can just delete this part and initialize speaker right away
-    std::ifstream in_stream;
-    in_stream.open(worLib::password_path);
-    if (in_stream.is_open()) {
-        std::string line;
-        std::getline(in_stream, line);
-        // Or read ONE WORD. NOT line, just ONE WORD:
-        // in_stream >> line;
-        if (line != worLib::password)
-            return false;
-    } else {
-        in_stream.close();
+    std::ifstream inStream;
+    inStream.open(passwordPath);
+    if (!inStream.is_open()) {
         return false;
     }
-    in_stream.close();
-    ptr_wrapper = new worLib::TrackingCameraSpeakerWrapper();
-    return ptr_wrapper != nullptr;
+    std::string line;
+    std::getline(inStream, line);
+    // Or read ONE WORD. NOT line, just ONE WORD:
+    // inStream >> line;
+    if (line != password) {
+        inStream.close();
+        return false;
+    }
+    inStream.close();
+    ptrWrapper = new TrackingCameraSpeakerWrapper();
+    return ptrWrapper != nullptr;
 }
 
 bool deinitializeSpeaker() {
-    CHECK_PTR(ptr_wrapper)
-    delete ptr_wrapper;
-    ptr_wrapper = nullptr;
+    CHECK_PTR(ptrWrapper)
+    delete ptrWrapper;
+    ptrWrapper = nullptr;
     return true;
 }
 
-bool setOsFlag(int flag) {
-    CHECK_PTR(ptr_wrapper)
-    ptr_wrapper->setOsFlag(worLib::FreeDPacket::camera_data_type(flag));
+bool setOsFlag(int flag_) {
+    CHECK_PTR(ptrWrapper)
+    ptrWrapper->setOsFlag(worLib::FreeDPacket::CameraDataType(flag_));
     return true;
 }
 
-bool startReader(const std::string &local_address, int local_port) {
-    CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->startReader(local_address, local_port))
+bool startReader(const std::string &localAddress_, int localPort_) {
+    CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->startReader(localAddress_, localPort_))
 }
 
-bool stopReader() { CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->stopReader()) }
+bool stopReader() { CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->stopReader()) }
 
-float getRx() { CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->getRx()) }
+float getRx() { CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->getRx()) }
 
-float getRy() { CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->getRy()) }
+float getRy() { CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->getRy()) }
 
-float getRz() { CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->getRz()) }
+float getRz() { CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->getRz()) }
 
-float getX() { CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->getX()) }
+float getX() { CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->getX()) }
 
-float getY() { CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->getY()) }
+float getY() { CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->getY()) }
 
-float getZ() { CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->getZ()) }
+float getZ() { CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->getZ()) }
 
-int getZoom() { CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->getZoom()) }
+int getZoom() { CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->getZoom()) }
 
-int getFocus() { CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->getFocus()) }
+int getFocus() { CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->getFocus()) }
 
-bool getServerActivity() { CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->getServerActivity()) }
+bool getServerActivity() { CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->getServerActivity()) }
 
-bool getSpeakerActivity() { CHECK_PTR_WITH_VAL(ptr_wrapper, ptr_wrapper->getSpeakerActivity()) }
+bool getSpeakerActivity() { CHECK_PTR_WITH_VAL(ptrWrapper, ptrWrapper->getSpeakerActivity()) }

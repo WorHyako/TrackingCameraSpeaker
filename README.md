@@ -1,6 +1,6 @@
 # TrackingCameraSpeaker
 #### by Worshiper Hyakki Yakō(worHyako)
-### This repo is designed to accept UDP packet (FreeD protocol) from local network and convert it to camera parameters: position, rotation and lens value.
+### This repo is designed to accept UDP packet (FreeD protocol) from local network and convert it to camera parameters: position, rotation and LENS value.
 
 ---
 
@@ -9,7 +9,7 @@
 >> This is your Speaker. Enjoy it
 > ---
 > public:
-> * void setOsFlag(FreeDPacket::camera_data_type) - Set flag for desired output stream info
+> * void setOsFlag(FreeDPacket::CameraDataType) - Set flag for desired output stream info
 > * float get_%value%_() - Float/int getters for X,Y,Z,Rx,Ry,Rz,Zoom,Focus camera parameters
 > * bool startReader(const std::string& local_ip, int16_t local_port) - Open socket if possible and start receiving and parsing (2) threads
 > * bool stopReader() - Shutdown goddamn speaker. Stop threads, close socket.
@@ -36,8 +36,8 @@
 >> Temp place (buffer) to packet repairing
 > ---
 > public:
-> * bool tryToAppendNewData(const std::array<unsigned char, PARTIAL_BUFFER_PACKET_LENGTH> &new_data) - Packet integrity check and calculation info for repairing if it is needed
-> * bool checkChecksum(const std::array<unsigned char, PARTIAL_BUFFER_PACKET_LENGTH> &byte_array) - Check checksum(tautology, but it's true)
+> * bool tryToAppendNewData(const std::array<unsigned char, PARTIAL_BUFFER_LENGTH> &new_data) - Packet integrity check and calculation info for repairing if it is needed
+> * bool checkChecksum(const std::array<unsigned char, PARTIAL_BUFFER_LENGTH> &byte_array) - Check checksum(tautology, but it's true)
 
 > ### ServerUdpSocket : BaseSocket
 >> Main class to accept packets

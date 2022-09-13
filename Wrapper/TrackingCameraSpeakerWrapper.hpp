@@ -1,33 +1,29 @@
-#ifndef TRACKINGCAMERASPEAKER_TRACKINGCAMERASPEAKERWRAPPER_H
-#define TRACKINGCAMERASPEAKER_TRACKINGCAMERASPEAKERWRAPPER_H
+#ifndef TRACKINGCAMERASPEAKER_TRACKINGCAMERASPEAKERWRAPPER_HPP
+#define TRACKINGCAMERASPEAKER_TRACKINGCAMERASPEAKERWRAPPER_HPP
 
 #include "../TrackingSpeaker.h"
 
 #include <fstream>
 
-namespace worLib {
+extern const std::string password;
+extern const std::string passwordPath;
 
-    extern const std::string password;
-    extern const std::string password_path;
+class TrackingCameraSpeakerWrapper final
+        : public worLib::TrackingSpeaker {
 
-    class TrackingCameraSpeakerWrapper
-            : public TrackingSpeaker {
+};
 
-    };
-}
-
-worLib::TrackingSpeaker *ptr_wrapper;
+worLib::TrackingSpeaker *ptrWrapper;
 
 #pragma region Methods to export
 extern "C" {
-
 __declspec(dllexport) bool initializeSpeaker();
 
 __declspec(dllexport) bool deinitializeSpeaker();
 
-__declspec(dllexport) bool setOsFlag(int flag);
+__declspec(dllexport) bool setOsFlag(int flag_);
 
-__declspec(dllexport) bool startReader(const std::string &local_address, int local_port);
+__declspec(dllexport) bool startReader(const std::string &localAddress_, int localPort_);
 
 __declspec(dllexport) bool stopReader();
 
@@ -53,21 +49,24 @@ __declspec(dllexport) bool getSpeakerActivity();
 }
 #pragma endregion Methods to export
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved) {
+int WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved) {
     switch (fdwReason) {
         case DLL_PROCESS_ATTACH:
             // well, let's go
             break;
         case DLL_PROCESS_DETACH:
-            if (!ptr_wrapper) break;
-            if (ptr_wrapper->getServerActivity())
-                ptr_wrapper->stopReader();
-            delete ptr_wrapper;
+            if (!ptrWrapper) {
+                break;
+            }
+            if (ptrWrapper->getServerActivity()) {
+                ptrWrapper->stopReader();
+            }
+            delete ptrWrapper;
             break;
         default:
             break;
     }
-    return true;
+    return 0;
 }
 
 #endif
