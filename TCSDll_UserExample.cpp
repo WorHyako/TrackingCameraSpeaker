@@ -4,7 +4,7 @@ int main() {
     const DllHandle h("libTrackingCameraSpeaker_DLL.dll");
     if (!h.Get()) {
         MessageBox(nullptr, "Can't load DLL", "UnitCallDll", MB_OK);
-        return 0;
+        return 1;
     }
 
 #pragma region DllMethods
