@@ -1,20 +1,21 @@
-#include "TrackingSpeaker.h"
-
-using std::cout;
+#include "TrackingSpeaker.hpp"
 
 int main() {
-
     std::string targetAddress = "127.0.0.1";
 
-    cout << "Welcome back\n";
-    worLib::TrackingSpeaker reader;
-    reader.startReader(targetAddress, 6001);
-    if (worLib::BaseSocket::checkEndPoint(targetAddress)) {
+    worCameraTracking::TrackingSpeaker reader;
+    if(!reader.startSpeaker(targetAddress, 6001))
+    {
+        return -1;
+    }
+    if (worCameraTracking::BaseSocket::checkEndPoint(targetAddress)) {
         int k = 0;
-        while (k < 100) {
-            reader.setOsFlag(worLib::FreeDPacket::CameraDataType::LOC_ROT);
-            cout << reader;
-            cout << "\n-----------------------------\n";
+        while (k < 5) {
+            reader.setOsFlag(worCameraTracking::FreeDPacket::CameraDataType::LOC_ROT);
+            for (auto each : reader.getBuffer()) {
+                std::cout << std::hex << "_" << (int) each;
+            }
+            std::cout << "\n-----------------------------\n";
             Sleep(500);
             k++;
         }

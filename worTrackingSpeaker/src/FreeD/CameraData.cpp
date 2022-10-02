@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-using namespace worLib;
+using namespace worCameraTracking;
 
 CameraData::CameraData(int jointValue_) {
     _rz = static_cast<float>(jointValue_);

@@ -10,7 +10,7 @@
 
 typedef unsigned char byte;
 
-namespace worLib {
+namespace worCameraTracking {
 
     constexpr int FREED_PACKET_LENGTH = 29;
 
@@ -30,7 +30,7 @@ namespace worLib {
         PartialBuffer _partialBuffer;
 
     public:
-        void parseData(std::array<byte, FREED_PACKET_LENGTH> data_);
+        void packetToData(const std::array<byte, FREED_PACKET_LENGTH> &data_);
 
     private:
         float parseAngle(byte &a_, byte &b_, byte &c_) const;

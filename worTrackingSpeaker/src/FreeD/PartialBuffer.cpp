@@ -1,6 +1,6 @@
 #include "PartialBuffer.hpp"
 
-using namespace worLib;
+using namespace worCameraTracking;
 
 PartialBuffer::PartialBuffer() {
     _deltaByte = 0;

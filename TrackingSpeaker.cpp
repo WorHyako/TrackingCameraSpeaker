@@ -1,55 +1,62 @@
-#include "TrackingSpeaker.h"
+#include "TrackingSpeaker.hpp"
 
-using namespace worLib;
+using namespace worCameraTracking;
 
 TrackingSpeaker::TrackingSpeaker() {
     _speakerActivity = false;
-    _receivingThread = nullptr;
-    _parsingThread = nullptr;
 }
 
 TrackingSpeaker::~TrackingSpeaker() {
-    stopReader();
+    stopSpeaker();
 }
 
-bool TrackingSpeaker::startReader(const std::string &localIp_, int16_t localPort_) {
+bool TrackingSpeaker::startSpeaker(const std::string &localIp_, int16_t localPort_) {
     _speakerActivity = _server.openSocket(localIp_, localPort_);
     if (!_speakerActivity) {
         return false;
     }
 
-    _receivingThread = new std::thread(&ServerUdpSocket::startReceivingData, _server);
-    _parsingThread = new std::thread(&TrackingSpeaker::startParse, this);
+    _receivingThread = std::thread(&ServerUdpSocket::receivePacket, std::ref(_server));
+    _parsingThread = std::thread(&TrackingSpeaker::parsePacket, std::ref(*this));
     return true;
 }
 
-bool TrackingSpeaker::stopReader() {
-    if (_speakerActivity) {
-        _speakerActivity = false;
-        _receivingThread->detach();
-        _parsingThread->detach();
-        delete _receivingThread;
-        delete _parsingThread;
+bool TrackingSpeaker::stopSpeaker() {
+    if (!_speakerActivity) {
+        return false;
     }
-    Sleep(1);
-    return _server.closeSocket();
+    _speakerActivity = false;
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    auto closeSocketResult = _server.closeSocket();
+    if (_receivingThread.joinable()) {
+        _receivingThread.join();
+    }
+
+    if (_parsingThread.joinable()) {
+        _parsingThread.join();
+    }
+    return closeSocketResult;
 }
 
-void TrackingSpeaker::startParse() {
+void TrackingSpeaker::parsePacket() {
+    auto waitServerTimeout = std::chrono::milliseconds(100);
     while (_speakerActivity) {
-        std::vector<byte> dataVArray = _server.getDataInStlVector();
+        std::vector<byte> dataVArray;
+        {
+            std::unique_lock<std::mutex> lock(_server._receivingMutex);
+            _server._dataReceived.wait_for(lock, waitServerTimeout);
+            dataVArray = _server.getBuffer();
+        }
         if (dataVArray.empty()) {
             continue;
         }
         std::array<byte, FREED_PACKET_LENGTH> dataArray{};
         std::copy(dataVArray.begin(), dataVArray.end(), dataArray.begin());
-        _freedPacket.parseData(dataArray);
-
-        Sleep(1);
+        _freedPacket.packetToData(dataArray);
     }
 }
 
-std::ostream &worLib::operator<<(std::ostream &os_, const TrackingSpeaker &reader_) {
+std::ostream &worCameraTracking::operator<<(std::ostream &os_, const TrackingSpeaker &reader_) {
     os_ << reader_._freedPacket;
     return os_;
 }
@@ -64,8 +71,8 @@ short int TrackingSpeaker::getLocalPort() const {
     return _server.getNetParameters()._localPort;
 }
 
-bool TrackingSpeaker::getServerActivity() const {
-    return _server._activity;
+SocketState TrackingSpeaker::getServerState() const {
+    return _server.getSocketState();
 }
 
 bool TrackingSpeaker::getSpeakerActivity() const {
@@ -108,6 +115,10 @@ bool TrackingSpeaker::getUseFracture() const {
     return _freedPacket.getUseFracture();
 }
 
+const std::vector<byte> &TrackingSpeaker::getBuffer() const {
+    return _server.getBuffer();
+}
+
 #pragma endregion Accessors
 
 #pragma region Mutators
@@ -115,5 +126,6 @@ bool TrackingSpeaker::getUseFracture() const {
 void TrackingSpeaker::setOsFlag(FreeDPacket::CameraDataType flag_) {
     _freedPacket._streamFlag = flag_;
 }
+
 
 #pragma endregion Mutators

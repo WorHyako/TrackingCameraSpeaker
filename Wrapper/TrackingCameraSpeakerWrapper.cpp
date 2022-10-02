@@ -36,7 +36,7 @@ bool deinitializeSpeaker() {
 
 bool setOsFlag(int flag_) {
     CHECK_PTR(ptrWrapper)
-    ptrWrapper->setOsFlag(worLib::FreeDPacket::CameraDataType(flag_));
+    ptrWrapper->setOsFlag(worCameraTracking::FreeDPacket::CameraDataType(flag_));
     return true;
 }
 

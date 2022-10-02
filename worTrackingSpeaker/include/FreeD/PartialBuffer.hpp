@@ -6,7 +6,7 @@
 
 typedef unsigned char byte;
 
-namespace worLib {
+namespace worCameraTracking {
 
     constexpr int PARTIAL_BUFFER_LENGTH = 29;
 

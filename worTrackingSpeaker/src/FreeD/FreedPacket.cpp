@@ -1,13 +1,13 @@
 #include "FreedPacket.hpp"
 
-using namespace worLib;
+using namespace worCameraTracking;
 
-void FreeDPacket::parseData(std::array<byte, FREED_PACKET_LENGTH> data_) {
-    CameraData newCameraData;
+void FreeDPacket::packetToData(const std::array<byte, FREED_PACKET_LENGTH> &data_) {
     _partialBuffer.tryToAppendNewData(data_);
     if (!(_partialBuffer._packetComplete && _partialBuffer._packetValid)) {
         return;
     }
+    CameraData newCameraData;
     newCameraData._rz =
             parseAngle(_partialBuffer._buffer[2], _partialBuffer._buffer[3], _partialBuffer._buffer[4]);
     newCameraData._ry =
@@ -96,7 +96,7 @@ int FreeDPacket::parseLens(byte &a_, byte &b_, byte &c_) const {
     }
 }
 
-std::ostream &worLib::operator<<(std::ostream &os_, const FreeDPacket &freeDPacket_) {
+std::ostream &worCameraTracking::operator<<(std::ostream &os_, const FreeDPacket &freeDPacket_) {
     os_ << "\nCompleted camera data:";
     switch (freeDPacket_._streamFlag) {
         using std::cout;

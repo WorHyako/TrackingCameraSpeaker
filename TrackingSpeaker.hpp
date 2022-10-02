@@ -1,12 +1,12 @@
-#ifndef TRACKINGCAMERASPEAKER_TRACKINGSPEAKER_H
-#define TRACKINGCAMERASPEAKER_TRACKINGSPEAKER_H
+#ifndef TRACKINGCAMERASPEAKER_TRACKINGSPEAKER_HPP
+#define TRACKINGCAMERASPEAKER_TRACKINGSPEAKER_HPP
 
-#include "lib/Socket/ServerUdpSocket.hpp"
-#include "lib/FreeD/FreedPacket.hpp"
+#include "ServerUdpSocket.hpp"
+#include "FreedPacket.hpp"
 
 #include <thread>
 
-namespace worLib {
+namespace worCameraTracking {
 
     class TrackingSpeaker {
     public:
@@ -20,25 +20,27 @@ namespace worLib {
         FreeDPacket _freedPacket;
         ServerUdpSocket _server;
 
-        std::thread *_receivingThread;
-        std::thread *_parsingThread;
+        std::thread _receivingThread;
+        std::thread _parsingThread;
 
         bool _speakerActivity;
 
-        void startParse();
+    public:
+        bool startSpeaker(const std::string &localIp_, int16_t localPort_);
+
+        bool stopSpeaker();
+
+    private:
+        void parsePacket();
 
     public:
-        bool startReader(const std::string &localIp_, int16_t localPort_);
-
-        bool stopReader();
-
 #pragma region Accessors
 
         std::string getLocalIp() const;
 
         short int getLocalPort() const;
 
-        bool getServerActivity() const;
+        SocketState getServerState() const;
 
         bool getSpeakerActivity() const;
 
@@ -59,6 +61,8 @@ namespace worLib {
         int getFocus() const;
 
         bool getUseFracture() const;
+
+        const std::vector<byte> &getBuffer() const;
 
 #pragma endregion Accessors
 

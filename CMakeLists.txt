@@ -1,30 +1,35 @@
 cmake_minimum_required(VERSION 3.22)
 project(TrackingCameraSpeaker)
-
 set(CMAKE_CXX_STANDARD 14)
 
+list(APPEND worTS_inc_dirs
+        worTrackingSpeaker/include/FreeD
+        worTrackingSpeaker/include/Socket)
+
+list(APPEND worTS_src_dirs
+        worTrackingSpeaker/src/FreeD
+        worTrackingSpeaker/src/Socket)
+
+list(APPEND worTS_src
+        worTrackingSpeaker/src/FreeD/CameraData.cpp
+        worTrackingSpeaker/src/FreeD/FreedPacket.cpp
+        worTrackingSpeaker/src/FreeD/PartialBuffer.cpp
+        worTrackingSpeaker/src/Socket/BaseSocket.cpp
+        worTrackingSpeaker/src/Socket/ServerUdpSocket.cpp
+        worTrackingSpeaker/src/Socket/ServerDependencies.cpp)
+
+list(APPEND worTS_inc
+        worTrackingSpeaker/include/FreeD/CameraData.hpp
+        worTrackingSpeaker/include/FreeD/PartialBuffer.hpp
+        worTrackingSpeaker/include/FreeD/FreedPacket.hpp
+        worTrackingSpeaker/include/Socket/BaseSocket.hpp
+        worTrackingSpeaker/include/Socket/ServerUdpSocket.hpp
+        worTrackingSpeaker/include/Socket/ServerDependencies.hpp)
+
+include_directories(${worTS_inc_dirs} ${worTS_src_dirs})
+
 add_executable(TrackingCameraSpeaker TCS_UserExample.cpp
-        lib/FreeD/CameraData.cpp lib/FreeD/CameraData.hpp
-        lib/FreeD/FreedPacket.cpp lib/FreeD/FreedPacket.hpp
-        lib/FreeD/PartialBuffer.cpp lib/FreeD/PartialBuffer.hpp
-        lib/Socket/BaseSocket.cpp lib/Socket/BaseSocket.hpp
-        lib/Socket/ServerUdpSocket.cpp lib/Socket/ServerUdpSocket.hpp
-        TrackingSpeaker.cpp TrackingSpeaker.h)
+        TrackingSpeaker.cpp TrackingSpeaker.hpp ${worTS_inc} ${worTS_src})
 
 target_link_libraries(TrackingCameraSpeaker ws2_32)
 target_link_libraries(TrackingCameraSpeaker iphlpapi.lib)
-
-add_executable(TrackingCameraSpeaker_DLLUserExample TCSDll_UserExample.cpp
-        DllMethods.h)
-
-add_library(TrackingCameraSpeaker_DLL MODULE
-        lib/FreeD/CameraData.cpp lib/FreeD/CameraData.hpp
-        lib/FreeD/FreedPacket.cpp lib/FreeD/FreedPacket.hpp
-        lib/FreeD/PartialBuffer.cpp lib/FreeD/PartialBuffer.hpp
-        lib/Socket/BaseSocket.cpp lib/Socket/BaseSocket.hpp
-        lib/Socket/ServerUdpSocket.cpp lib/Socket/ServerUdpSocket.hpp
-        TrackingSpeaker.cpp TrackingSpeaker.h
-        Wrapper/TrackingCameraSpeakerWrapper.cpp Wrapper/TrackingCameraSpeakerWrapper.hpp)
-
-target_link_libraries(TrackingCameraSpeaker_DLL ws2_32)
-target_link_libraries(TrackingCameraSpeaker_DLL iphlpapi.lib)

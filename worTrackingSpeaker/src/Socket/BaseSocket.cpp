@@ -1,60 +1,42 @@
 #include "BaseSocket.hpp"
 
+#include <iostream>
 #include <iphlpapi.h>
 #include <icmpapi.h>
 
 //#pragma comment(lib, "iphlpapi.lib") // for Visual Studio
 
-using namespace worLib;
+using namespace worCameraTracking;
 
-NetParameters::NetParameters() {
-    _localIp = "";
-    _localPort = -1;
-    _destinationIp = "";
-    _destinationPort = -1;
-}
-
-NetParameters::NetParameters(const std::string &localIp_, int16_t localPort_,
-                             const std::string &destinationIp_, int16_t destinationPort_) {
-    _localIp = localIp_;
-    _localPort = localPort_;
-    _destinationIp = destinationIp_;
-    _destinationPort = destinationPort_;
-}
+int worCameraTracking::SOCKET_FPS = 100;
+int worCameraTracking::BUFFER_LENGTH = 29;
 
 BaseSocket::BaseSocket(int bufferLength_) {
-    _activity = false;
+    _state = SocketState::ZeroState;
     _bufferLength = bufferLength_;
-    _buffer = new char[_bufferLength];
+    _buffer.resize(_bufferLength);
     _socket = SOCKET_ERROR;
+    _wsaData = WSAData();
 }
 
 BaseSocket::BaseSocket(const std::string &localIp_, int16_t localPort_,
                        const std::string &destinationIp_, int16_t destinationPort_, int bufferLength_)
         : BaseSocket(bufferLength_) {
-    _netParameters._localIp = localIp_;
-    _netParameters._localPort = localPort_;
-    _netParameters._destinationIp = destinationIp_;
-    _netParameters._destinationPort = destinationPort_;
+    _netParameters = NetParameters(localIp_, localPort_, destinationIp_, destinationPort_);
 }
 
 BaseSocket::BaseSocket(const std::string &localIp_, int16_t localPort_, int bufferLength_)
         : BaseSocket(bufferLength_) {
-    _netParameters._localIp = localIp_;
-    _netParameters._localPort = localPort_;
-}
-
-BaseSocket::~BaseSocket() {
-    delete _buffer;
+    _netParameters = NetParameters(localIp_, localPort_);
 }
 
 bool BaseSocket::checkEndPoint(const std::string &destinationIp_) {
     HANDLE hIcmpFile;
     unsigned long ipAddr = INADDR_NONE;
-    DWORD dwRetVal = 0;
+    DWORD dwRetVal;
     char pingData[32] = "Packet to ping";
-    LPVOID replyBuffer = nullptr;
-    DWORD replySize = 0;
+    LPVOID replyBuffer;
+    DWORD replySize;
 
     ipAddr = inet_addr(destinationIp_.c_str());
     if (ipAddr == INADDR_NONE) {
@@ -80,7 +62,7 @@ bool BaseSocket::checkEndPoint(const std::string &destinationIp_) {
                             1000);
     if (dwRetVal) {
         auto pEchoReply = (PICMP_ECHO_REPLY) replyBuffer;
-        struct in_addr replyAddr;
+        struct in_addr replyAddr{};
         replyAddr.S_un.S_addr = pEchoReply->Address;
         std::cout << "\tSent icmp message to " << destinationIp_.c_str() << std::endl;
         if (dwRetVal > 1) {
@@ -92,7 +74,7 @@ bool BaseSocket::checkEndPoint(const std::string &destinationIp_) {
         }
         std::cout << "\t  Received from " << inet_ntoa(replyAddr) << std::endl;
         std::cout << "\t  Status = " << pEchoReply->Status << std::endl;
-        std::cout << "\t  Roundtrip time = " << pEchoReply->RoundTripTime << " milliseconds\n";
+        std::cout << "\t  RoundTrip time = " << pEchoReply->RoundTripTime << " milliseconds\n";
     } else {
         std::cout << "\tCall to IcmpSendEcho failed.\n";
         std::cout << "\tIcmpSendEcho returned error: " << GetLastError() << std::endl;
@@ -101,28 +83,22 @@ bool BaseSocket::checkEndPoint(const std::string &destinationIp_) {
     return true;
 }
 
-std::array<int, 29> BaseSocket::getDataInIntArray() {
-    std::array<int, BUFFER_LENGTH> result{};
-    char *ptrBuffer = _buffer;
-    for (int16_t i = 0; i < _bufferLength; i++, ptrBuffer++) {
-        result[i] = static_cast<int>(static_cast<unsigned char>(*ptrBuffer));
-    }
-    return result;
-}
+#pragma region Accessors
 
-std::vector<byte> BaseSocket::getDataInStlVector() {
-    std::vector<byte> resultArray(_bufferLength, '0');
-    char *ptr_buffer = _buffer;
-    for (int16_t i = 0; i < _bufferLength; i++, ptr_buffer++) {
-        resultArray.push_back(*ptr_buffer);
-    }
-    return resultArray;
-}
-
-char *BaseSocket::getDataInCharPtr() const {
+const std::vector<byte> &BaseSocket::getBuffer() const {
     return _buffer;
 }
 
 NetParameters BaseSocket::getNetParameters() const {
     return _netParameters;
 }
+
+SocketState BaseSocket::getSocketState() const {
+    return _state;
+}
+
+#pragma endregion Accessors
+
+#pragma region Mutators
+
+#pragma endregion Mutators

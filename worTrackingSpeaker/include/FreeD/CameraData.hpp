@@ -1,7 +1,7 @@
 #ifndef TRACKINGCAMERASPEAKER_CAMERADATA_HPP
 #define TRACKINGCAMERASPEAKER_CAMERADATA_HPP
 
-namespace worLib {
+namespace worCameraTracking {
 
     class CameraData {
     public:

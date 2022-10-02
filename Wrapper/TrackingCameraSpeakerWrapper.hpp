@@ -1,7 +1,7 @@
 #ifndef TRACKINGCAMERASPEAKER_TRACKINGCAMERASPEAKERWRAPPER_HPP
 #define TRACKINGCAMERASPEAKER_TRACKINGCAMERASPEAKERWRAPPER_HPP
 
-#include "../TrackingSpeaker.h"
+#include "../TrackingSpeaker.hpp"
 
 #include <fstream>
 
@@ -9,11 +9,11 @@ extern const std::string password;
 extern const std::string passwordPath;
 
 class TrackingCameraSpeakerWrapper final
-        : public worLib::TrackingSpeaker {
+        : public worCameraTracking::TrackingSpeaker {
 
 };
 
-worLib::TrackingSpeaker *ptrWrapper;
+worCameraTracking::TrackingSpeaker *ptrWrapper;
 
 #pragma region Methods to export
 extern "C" {
