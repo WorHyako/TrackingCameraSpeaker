@@ -13,14 +13,22 @@
 //#pragma comment(lib, "wsock32.lib") // for Visual Studio
 
 namespace worCameraTracking {
-
+    /// Server tick rate
     extern int SOCKET_FPS;
 
+    /// Server's receiving buffer
     extern int BUFFER_LENGTH;
 
+    /**
+     * Base abstract class to socket management
+     * Provide mutex @b'_receivingMutex' and condition_variable @b'_dataReceived', base WinAPI fields to create
+     * UDP or TCP full management classes
+     */
     class BaseSocket {
     public:
+        /// Condition variable in charge of @b'_buffer'. Notify then data received
         std::condition_variable _dataReceived;
+        /// Mutex in charge of @b'_buffer'. Locked while the data is receiving
         std::mutex _receivingMutex;
 
     protected:
@@ -46,6 +54,11 @@ namespace worCameraTracking {
 
         virtual bool closeSocket() = 0;
 
+        /**
+         * Check connection to destination IP
+         * @param destinationIp_ destination IP to ping
+         * @return successful connection
+         */
         static bool checkEndPoint(const std::string &destinationIp_);
 
     public:

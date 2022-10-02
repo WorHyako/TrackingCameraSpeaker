@@ -8,6 +8,12 @@
 
 namespace worCameraTracking {
 
+    /**
+     * Class providing receiving UDP messages (protocol FreeD) from socket
+     * and convert it to camera x, y, z, rx, ry, rz, zoom, focus
+     * Run two threads inside: receive packet and parse it to camera data
+     * The main purpose is to manage connection between @b'_freedPacket' and @b'_server'
+     */
     class TrackingSpeaker {
     public:
         TrackingSpeaker();
@@ -26,11 +32,25 @@ namespace worCameraTracking {
         bool _speakerActivity;
 
     public:
+        /**
+         * Try to open socket and run two thread to listen port and parse packet to data
+         * @param localIp_ local ip to lister
+         * @param localPort_ local port to listen
+         * @return successful open socket
+         */
         bool startSpeaker(const std::string &localIp_, int16_t localPort_);
 
+        /**
+         * Close socket and join all threads
+         * @return false if nothing to stop (already stopped)
+         */
         bool stopSpeaker();
 
     private:
+        /**
+         * Wait notify from @b'_server' and copy buffer's data to parse by @b'_freedPacket'
+         * Recommended run to other thread/task
+         */
         void parsePacket();
 
     public:

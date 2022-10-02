@@ -2,9 +2,9 @@
 
 using namespace worCameraTracking;
 
-PartialBuffer::PartialBuffer() {
+PartialBuffer::PartialBuffer()
+        : _buffer({}) {
     _deltaByte = 0;
-
     _buffer.fill('0');
     _packetValid = false;
     _packetComplete = true;

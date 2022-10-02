@@ -5,6 +5,9 @@
 
 namespace worCameraTracking {
 
+    /**
+     * Store net data in comfort way
+     */
     struct NetParameters {
         NetParameters();
 
@@ -17,9 +20,15 @@ namespace worCameraTracking {
         int16_t _destinationPort;
     };
 
+    /**
+     * Server's socket state
+     */
     enum class SocketState {
+        /// Socket ready to connect
         ZeroState,
+        /// Socket connected and active
         Connected,
+        /// Socket or WinAPI error occurred
         SocketError
     };
 }
