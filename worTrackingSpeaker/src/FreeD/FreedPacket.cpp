@@ -9,26 +9,26 @@ void FreeDPacket::packetToData(const std::array<byte, FREED_PACKET_LENGTH> &data
     }
     CameraData newCameraData;
     newCameraData._rz =
-            parseAngle(_partialBuffer._buffer[2], _partialBuffer._buffer[3], _partialBuffer._buffer[4]);
+            bytesToAngles(_partialBuffer._buffer[2], _partialBuffer._buffer[3], _partialBuffer._buffer[4]);
     newCameraData._ry =
-            parseAngle(_partialBuffer._buffer[5], _partialBuffer._buffer[6], _partialBuffer._buffer[7]);
+            bytesToAngles(_partialBuffer._buffer[5], _partialBuffer._buffer[6], _partialBuffer._buffer[7]);
     newCameraData._rx =
-            parseAngle(_partialBuffer._buffer[8], _partialBuffer._buffer[9], _partialBuffer._buffer[10]);
+            bytesToAngles(_partialBuffer._buffer[8], _partialBuffer._buffer[9], _partialBuffer._buffer[10]);
     newCameraData._x =
-            parseLocation(_partialBuffer._buffer[11], _partialBuffer._buffer[12], _partialBuffer._buffer[13]);
+            bytesToLocation(_partialBuffer._buffer[11], _partialBuffer._buffer[12], _partialBuffer._buffer[13]);
     newCameraData._y =
-            parseLocation(_partialBuffer._buffer[14], _partialBuffer._buffer[15], _partialBuffer._buffer[16]);
+            bytesToLocation(_partialBuffer._buffer[14], _partialBuffer._buffer[15], _partialBuffer._buffer[16]);
     newCameraData._z =
-            parseLocation(_partialBuffer._buffer[17], _partialBuffer._buffer[18], _partialBuffer._buffer[19]);
+            bytesToLocation(_partialBuffer._buffer[17], _partialBuffer._buffer[18], _partialBuffer._buffer[19]);
     newCameraData._zoom =
-            parseLens(_partialBuffer._buffer[20], _partialBuffer._buffer[21], _partialBuffer._buffer[22]);
+            bytesToLens(_partialBuffer._buffer[20], _partialBuffer._buffer[21], _partialBuffer._buffer[22]);
     newCameraData._focus =
-            parseLens(_partialBuffer._buffer[23], _partialBuffer._buffer[24], _partialBuffer._buffer[25]);
+            bytesToLens(_partialBuffer._buffer[23], _partialBuffer._buffer[24], _partialBuffer._buffer[25]);
 
     _cameraData = newCameraData;
 }
 
-float FreeDPacket::parseAngle(byte &a_, byte &b_, byte &c_) const {
+float FreeDPacket::bytesToAngles(byte &a_, byte &b_, byte &c_) const {
     const bool negativeSign = (a_ & 0b10000000) > 0;
     float value;
     int intPart;
@@ -56,7 +56,7 @@ float FreeDPacket::parseAngle(byte &a_, byte &b_, byte &c_) const {
     return negativeSign ? -value : value;
 }
 
-float FreeDPacket::parseLocation(byte &a_, byte &b_, byte &c_) const {
+float FreeDPacket::bytesToLocation(byte &a_, byte &b_, byte &c_) const {
     const bool negativeSign = (a_ & 0b10000000) > 0;
     float value;
     int intPart;
@@ -82,7 +82,7 @@ float FreeDPacket::parseLocation(byte &a_, byte &b_, byte &c_) const {
     return negativeSign ? -value : value;
 }
 
-int FreeDPacket::parseLens(byte &a_, byte &b_, byte &c_) const {
+int FreeDPacket::bytesToLens(byte &a_, byte &b_, byte &c_) const {
     if (_cameraData._useFracture) {
         return ((b_ << 8) | c_);
     } else {

@@ -10,13 +10,19 @@ namespace worCameraTracking {
 
     constexpr int PARTIAL_BUFFER_LENGTH = 29;
 
+    /**
+     * Class to repair packet and fold data
+     */
     class PartialBuffer final {
     public:
         PartialBuffer();
 
         std::array<byte, PARTIAL_BUFFER_LENGTH> _buffer;
+
         int _deltaByte;
+
         bool _packetValid;
+
         bool _packetComplete;
 
         bool tryToAppendNewData(const std::array<byte, PARTIAL_BUFFER_LENGTH> &newData_);

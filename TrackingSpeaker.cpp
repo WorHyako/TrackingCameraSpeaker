@@ -39,7 +39,7 @@ bool TrackingSpeaker::stopSpeaker() {
 }
 
 void TrackingSpeaker::parsePacket() {
-    auto waitServerTimeout = std::chrono::milliseconds(100);
+    auto waitServerTimeout = std::chrono::milliseconds(10);
     while (_speakerActivity) {
         std::vector<byte> dataVArray;
         {

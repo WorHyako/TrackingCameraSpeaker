@@ -12,8 +12,12 @@ typedef unsigned char byte;
 
 namespace worCameraTracking {
 
+    /// FreeD protocol packet length
     constexpr int FREED_PACKET_LENGTH = 29;
 
+    /**
+     * Class to convert received packet to camera data and store result
+     */
     class FreeDPacket final {
     public:
         enum class CameraDataType {
@@ -30,14 +34,20 @@ namespace worCameraTracking {
         PartialBuffer _partialBuffer;
 
     public:
+        /**
+         * Parse packet to data: x, y, z, rx, ry, rz, zoom, focus
+         * Use PartialBuffer to repair broken packet
+         * Fold data (in future)
+         * @param data_ packet to parse
+         */
         void packetToData(const std::array<byte, FREED_PACKET_LENGTH> &data_);
 
     private:
-        float parseAngle(byte &a_, byte &b_, byte &c_) const;
+        float bytesToAngles(byte &a_, byte &b_, byte &c_) const;
 
-        float parseLocation(byte &a_, byte &b_, byte &c_) const;
+        float bytesToLocation(byte &a_, byte &b_, byte &c_) const;
 
-        int parseLens(byte &a_, byte &b_, byte &c_) const;
+        int bytesToLens(byte &a_, byte &b_, byte &c_) const;
 
     public:
 #pragma region Accessors

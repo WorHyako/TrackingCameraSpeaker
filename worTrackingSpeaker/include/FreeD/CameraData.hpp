@@ -3,6 +3,9 @@
 
 namespace worCameraTracking {
 
+    /**
+     * Store camera values and methods to data operations
+     */
     class CameraData {
     public:
         float _rz, _ry, _rx;
