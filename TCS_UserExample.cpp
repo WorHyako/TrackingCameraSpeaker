@@ -1,4 +1,4 @@
-#include "TrackingSpeaker.hpp"
+#include "speaker/TrackingCameraSpeaker.hpp"
 
 int main() {
     std::string targetAddress = "127.0.0.1";

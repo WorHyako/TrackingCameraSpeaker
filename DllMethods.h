@@ -1,6 +1,11 @@
 #ifndef TRACKINGCAMERASPEAKER_DLLMETHODS_H
 #define TRACKINGCAMERASPEAKER_DLLMETHODS_H
 
+/**
+ * Import example directly exported .dll without all the rest.
+ * Sorry about the 'define', but it looks like a pretty comfortable.
+ */
+
 #include <windows.h>
 #include <string>
 
@@ -41,15 +46,25 @@ typedef bool (*m_getServerActivity)();
 typedef bool (*m_getSpeakerActivity)();
 
 struct DllHandle {
-    explicit DllHandle(LPCSTR filename)
-            : h(LoadLibrary(filename)) {}
+    explicit DllHandle(LPCSTR filename_)
+            : handle(LoadLibrary(filename_)) {}
+
+    ~DllHandle() {
+        if (handle) {
+            FreeLibrary(handle);
+        }
+    }
+
+#pragma region Accessors
+
+    HINSTANCE Get() const {
+        return handle;
+    }
+
+#pragma endregion Accessors
+
 private:
-    HINSTANCE h;
-
-public:
-    ~DllHandle() { if (h) FreeLibrary(h); }
-
-    HINSTANCE Get() const { return h; }
+    HINSTANCE handle;
 };
 
 #endif
