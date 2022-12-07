@@ -45,19 +45,16 @@ bool TrackingCameraSpeaker::stopSpeaker() {
 }
 
 void TrackingCameraSpeaker::parsePacket() {
-    auto waitServerTimeout = std::chrono::milliseconds(10);
+    auto waitServerTimeout = std::chrono::milliseconds(1);
     while (_speakerActivity) {
-        std::vector<std::byte> dataVArray;
+        std::vector<std::byte> dataVArray(FreeDPacket::freed_packet_length);
         {
             std::unique_lock<std::mutex> lock(_server._receivingMutex);
             _server._dataReceived.wait_for(lock, waitServerTimeout);
             dataVArray = _server.getPacket();
         }
-        if (dataVArray.empty()) {
-            continue;
-        }
-        std::array<std::byte, FREED_PACKET_LENGTH> dataArray{};
-        std::copy(dataVArray.begin(), dataVArray.end(), dataArray.begin());
+        std::array<std::byte, FreeDPacket::freed_packet_length> dataArray{};
+        std::copy(dataVArray.begin(), dataVArray.begin() + FreeDPacket::freed_packet_length, dataArray.begin());
         _freedPacket.packetToData(dataArray);
     }
 }
@@ -139,6 +136,10 @@ void TrackingCameraSpeaker::setOsFlag(FreeDPacket::CameraDataType flag_) noexcep
 std::ostream &worTCS::operator<<(std::ostream &os_, const TrackingCameraSpeaker &reader_) {
     os_ << reader_._freedPacket;
     return os_;
+}
+
+void TrackingCameraSpeaker::setPacketLength(int packetLength_) noexcept {
+    _server.setPacketLength(packetLength_);
 }
 
 #pragma region Operators

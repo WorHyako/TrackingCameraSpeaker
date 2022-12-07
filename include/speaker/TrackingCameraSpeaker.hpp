@@ -88,6 +88,8 @@ namespace worTCS {
 
         void setOsFlag(FreeDPacket::CameraDataType flag_) noexcept;
 
+        void setPacketLength(int packetLength_) noexcept;
+
 #pragma endregion Mutators
 
 #pragma region Operators

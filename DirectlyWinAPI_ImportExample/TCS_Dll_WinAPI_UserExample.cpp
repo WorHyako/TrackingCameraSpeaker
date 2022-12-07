@@ -22,7 +22,6 @@ int main() {
     IMPORT_METHOD(getFocus, m_getFocus)
     IMPORT_METHOD(getServerActivity, m_getServerActivity)
     IMPORT_METHOD(getSpeakerActivity, m_getSpeakerActivity)
-    IMPORT_METHOD(setOsFlag, m_setOsFlag) // useless method. it'll be implemented in the future
 #pragma endregion DllMethods
 
     if (!initializeSpeaker()) {

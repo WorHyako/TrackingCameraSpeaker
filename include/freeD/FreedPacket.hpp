@@ -4,14 +4,10 @@
 #include "freeD/CameraData.hpp"
 #include "freeD/PartialBuffer.hpp"
 
-#include <iostream>
 #include <sstream>
 #include <array>
 
 namespace worTCS {
-
-    /// freeD protocol packet length
-    constexpr int FREED_PACKET_LENGTH = 29;
 
     /**
      * Class to convert received packet to camera data and store result
@@ -24,13 +20,16 @@ namespace worTCS {
 
         FreeDPacket() = default;
 
+        /// freeD protocol packet length
+        static constexpr int freed_packet_length = 29;
+
         /**
          * Parse packet to data: x, y, z, rx, ry, rz, zoom, focus
          * Use PartialBuffer to repair broken packet
          * Fold data (in future)
          * @param data_ packet to parse
          */
-        void packetToData(const std::array<std::byte, FREED_PACKET_LENGTH> &data_);
+        void packetToData(const std::array<std::byte, freed_packet_length> &data_);
 
     private:
         CameraData _cameraData;

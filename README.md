@@ -22,7 +22,7 @@
 > ---
 > public:
 > * float get_%value%_() - Float/int getters for camera data: x,y,z,Rx,Ry,Rz,Zoom,Focus,Rx,Ry,Rz,Zoom,Focus 
-> * void packetToData(std::array<unsigned char, FREED_PACKET_LENGTH> data) - Method for parsing a packet for camera data
+> * void packetToData(std::array<unsigned char, freed_packet_length> data) - Method for parsing a packet for camera data
 > 
 > private:
 > * float parse_%type%_(unsigned char &a, unsigned char &b, unsigned char &c) - Float/int Angle/Location/Lens methods to calculate data from packet

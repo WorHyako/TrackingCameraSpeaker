@@ -2,7 +2,7 @@
 
 using namespace worTCS;
 
-void FreeDPacket::packetToData(const std::array<std::byte, FREED_PACKET_LENGTH> &data_) {
+void FreeDPacket::packetToData(const std::array<std::byte, freed_packet_length> &data_) {
     _partialBuffer.tryToAppendNewData(data_);
     if (!(_partialBuffer.isPacketCompleted() && _partialBuffer.isPacketValid())) {
         return;
@@ -107,38 +107,34 @@ int FreeDPacket::bytesToLens(const std::byte &a_, const std::byte &b_, const std
     }
 }
 
-std::ostream &operator<<(std::ostream &os_, const FreeDPacket &freeDPacket_) {
+std::ostream &worTCS::operator<<(std::ostream &os_, const FreeDPacket &freeDPacket_) {
     os_ << "\nCompleted camera data:";
     switch (freeDPacket_._streamFlag) {
-        using std::cout;
         case FreeDPacket::CameraDataType::LOC_ROT_LENS:
-            cout << freeDPacket_.getLocationViaString()
+            os_ << freeDPacket_.getLocationViaString()
                  << freeDPacket_.getRotationViaString()
                  << freeDPacket_.getLensViaString();
             break;
         case FreeDPacket::CameraDataType::LOC_ROT:
-            cout << freeDPacket_.getLocationViaString()
+            os_ << freeDPacket_.getLocationViaString()
                  << freeDPacket_.getRotationViaString();
             break;
         case FreeDPacket::CameraDataType::LOC:
-            cout << freeDPacket_.getLocationViaString();
+            os_ << freeDPacket_.getLocationViaString();
             break;
         case FreeDPacket::CameraDataType::ROT:
-            cout << freeDPacket_.getRotationViaString();
+            os_ << freeDPacket_.getRotationViaString();
             break;
         case FreeDPacket::CameraDataType::LENS:
-            cout << freeDPacket_.getLensViaString();
+            os_ << freeDPacket_.getLensViaString();
             break;
         case FreeDPacket::CameraDataType::ROT_LENS:
-            cout << freeDPacket_.getRotationViaString()
+            os_ << freeDPacket_.getRotationViaString()
                  << freeDPacket_.getLensViaString();
             break;
         case FreeDPacket::CameraDataType::LOC_LENS:
-            cout << freeDPacket_.getLocationViaString()
+            os_ << freeDPacket_.getLocationViaString()
                  << freeDPacket_.getLensViaString();
-            break;
-        default:
-            cout << "\nERROR: Unknown flag_";
             break;
     }
     return os_;

@@ -6,7 +6,7 @@
  * Sorry about the 'define', but it looks like a pretty comfortable.
  */
 
-#include <windows.h>
+#include <Windows.h>
 #include <string>
 
 #define IMPORT_METHOD(funcPtr, funcType) \
@@ -22,8 +22,6 @@ typedef bool (*m_stopReader)();
 typedef bool (*m_initializeSpeaker)();
 
 typedef bool (*m_deinitializeSpeaker)();
-
-typedef bool (*m_setOsFlag)(int flag_);
 
 typedef float (*m_getRx)();
 
@@ -55,6 +53,10 @@ struct DllHandle {
         }
     }
 
+private:
+    HINSTANCE handle;
+
+public:
 #pragma region Accessors
 
     HINSTANCE Get() const {
@@ -62,9 +64,6 @@ struct DllHandle {
     }
 
 #pragma endregion Accessors
-
-private:
-    HINSTANCE handle;
 };
 
 #endif

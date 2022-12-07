@@ -8,7 +8,7 @@ ServerUdpSocket::ServerUdpSocket(const PointInfo &pointInfo_) noexcept
 
 ServerUdpSocket::~ServerUdpSocket() {
     /// Yeah, i know that using virtual function in destructor are bad practice
-    /// Fix it in future
+    /// Will fix it in future
     if (_socketInfo.state == SocketState::Connected) {
         closeSocket();
     }
@@ -55,11 +55,14 @@ bool ServerUdpSocket::closeSocket() noexcept {
 }
 
 void ServerUdpSocket::receivePacket() noexcept {
+    /// Maybe use it(bytesReceived) in future
+    int bytesReceived = -1;
     while (_socketInfo.state == SocketState::Connected) {
         {
             std::lock_guard<std::mutex> lock(_receivingMutex);
-            recv(_socketInfo.socketHandle, reinterpret_cast<char *>(_socketInfo.packet.data()),
+            bytesReceived = recv(_socketInfo.socketHandle, reinterpret_cast<char *>(_socketInfo.packet.data()),
                  static_cast<int>(_socketInfo.packet.size()), 0);
+            _dataReceived.notify_all();
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / _socketInfo.socketFps));
     }
