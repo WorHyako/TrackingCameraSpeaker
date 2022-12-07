@@ -22,7 +22,7 @@
 > ---
 > public:
 > * float get_%value%_() - Float/int getters for camera data: x,y,z,Rx,Ry,Rz,Zoom,Focus,Rx,Ry,Rz,Zoom,Focus 
-> * void packetToData(std::array<unsigned char, FREED_PACKET_LENGTH> data) - Method for parsing a packet for camera data
+> * void packetToData(std::array<unsigned char, freed_packet_length> data) - Method for parsing a packet for camera data
 > 
 > private:
 > * float parse_%type%_(unsigned char &a, unsigned char &b, unsigned char &c) - Float/int Angle/Location/Lens methods to calculate data from packet
@@ -36,8 +36,8 @@
 >> Temp place (buffer) to packet repairing
 > ---
 > public:
-> * bool tryToAppendNewData(const std::array<unsigned char, PARTIAL_BUFFER_LENGTH> &new_data) - Packet integrity check and calculation info for repairing if it is needed
-> * bool checkChecksum(const std::array<unsigned char, PARTIAL_BUFFER_LENGTH> &byte_array) - Check checksum(tautology, but it's true)
+> * bool tryToAppendNewData(const std::array<unsigned char, partial_buffer_length> &new_data) - Packet integrity check and calculation info for repairing if it is needed
+> * bool checkChecksum(const std::array<unsigned char, partial_buffer_length> &byte_array) - Check checksum(tautology, but it's true)
 
 > ### ServerUdpSocket : BaseSocket
 >> Main class to accept packets
@@ -50,6 +50,6 @@
 > public:
 > * static bool checkEndPoint(const std::string &destination_ip) - Check destination address. This code has been a bit refactored, but belongs to some person (can't remember which one)
 > * char *getDataInCharPtr() - Return pointer to buffer
-> * std::vector<byte> getBuffer() - Return buffer in std::vector type
+> * std::vector<byte> getPacket() - Return buffer in std::vector type
 > * std::array<int, BUFFER_LENGTH> getDataInIntArray() - Return buffer in std::array type
-> * NetParameters getNetParameters() - NetParameters contains address/port info. Usually useless (useless like the previous 2 functions)
+> * PointInfo getPointInfo() - PointInfo contains address/port info. Usually useless (useless like the previous 2 functions)
