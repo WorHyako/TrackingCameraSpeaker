@@ -5,7 +5,6 @@
 #include "freeD/PartialBuffer.hpp"
 
 #include <sstream>
-#include <array>
 
 namespace worTCS {
 
