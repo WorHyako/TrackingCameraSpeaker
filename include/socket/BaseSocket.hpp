@@ -3,7 +3,6 @@
 
 #include "socket/SocketInfo.hpp"
 
-#include <array>
 #include <mutex>
 #include <condition_variable>
 

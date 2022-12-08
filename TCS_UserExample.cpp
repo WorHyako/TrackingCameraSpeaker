@@ -10,14 +10,13 @@ int main() {
 
     worTCS::TrackingCameraSpeaker reader;
     reader.setPacketLength(29);
-    reader.getServerState();
     if (!reader.startSpeaker(targetAddress, targetPort)) {
         return -1;
     }
     if (worTCS::BaseSocket::checkEndPoint(targetAddress)) {
         while (true) {
             reader.setOsFlag(worTCS::FreeDPacket::CameraDataType::LOC_ROT);
-            for (auto each: reader.getBuffer()) {
+            for (auto &each: reader.getBuffer()) {
                 std::cout << std::hex << "\n_" << (int) each;
             }
             std::cout << "\n-----------------------------";

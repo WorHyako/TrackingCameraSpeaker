@@ -10,7 +10,7 @@ namespace worTCS {
 
     /**
      * Class providing receiving UDP messages (protocol freeD) from socket
-     * and convert it to camera x, y, z, rx, ry, rz, zoom, focus
+     * and convert it to camera position, rotation, zoom, focus
      * Run two threads inside: receive packet and parse it to camera data
      * The main purpose is to manage connection between @b'_freedPacket' and @b'_server'
      */
@@ -58,11 +58,11 @@ namespace worTCS {
 
         [[nodiscard]] bool getSpeakerActivity() const noexcept;
 
+        [[nodiscard]] const Vector3<float>& getPosition() const noexcept;
+
+        [[nodiscard]] const Vector3<float>& getRotation() const noexcept;
+
         [[nodiscard]] float getRz() const noexcept;
-
-        [[nodiscard]] Vector3<float> getPosition() const noexcept;
-
-        [[nodiscard]] Vector3<float> getRotation() const noexcept;
 
         [[nodiscard]] float getRy() const noexcept;
 

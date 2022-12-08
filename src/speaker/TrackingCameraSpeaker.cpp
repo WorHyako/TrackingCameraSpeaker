@@ -113,11 +113,11 @@ const std::vector<std::byte> &TrackingCameraSpeaker::getBuffer() const noexcept 
     return _server.getPacket();
 }
 
-Vector3<float> TrackingCameraSpeaker::getRotation() const noexcept {
+const Vector3<float> &TrackingCameraSpeaker::getRotation() const noexcept {
     return _freedPacket.getRotation();
 }
 
-Vector3<float> TrackingCameraSpeaker::getPosition() const noexcept {
+const Vector3<float> &TrackingCameraSpeaker::getPosition() const noexcept {
     return _freedPacket.getPosition();
 }
 
