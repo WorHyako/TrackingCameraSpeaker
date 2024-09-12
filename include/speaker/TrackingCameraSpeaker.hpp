@@ -1,102 +1,151 @@
-#ifndef TRACKINGCAMERASPEAKER_TRACKINGCAMERASPEAKER_HPP
-#define TRACKINGCAMERASPEAKER_TRACKINGCAMERASPEAKER_HPP
+#pragma once
 
-#include "socket/ServerUdpSocket.hpp"
 #include "freeD/FreedPacket.hpp"
 
-#include <thread>
+#include "Wor/Vector/Vector3.hpp"
+#include "Wor/Network/TcpServer.hpp"
 
-namespace worTCS {
+#include <memory>
 
-    /**
-     * Class providing receiving UDP messages (protocol freeD) from socket
-     * and convert it to camera position, rotation, zoom, focus
-     * Run two threads inside: receive packet and parse it to camera data
-     * The main purpose is to manage connection between @b'_freedPacket' and @b'_server'
-     */
-    class TrackingCameraSpeaker {
-    public:
-        TrackingCameraSpeaker();
+namespace WorTCS {
+	/**
+	 * @brief	Class provides receiving UDP messages (protocol freeD) from socket
+	 *			and convert it to camera position, rotation, zoom, focus.
+	 *			<p>
+	 *			Run two threads inside: receive packet and parse it to camera data
+	 *			The main purpose is to manage connection between @b'_freedPacket' and @b'_server'
+	 *
+	 * @usage
+	 * @code
+	 *			FreedPacket parser;
+	 *			parser.packetToData(dataArray);
+	 * @endcode
+	 *
+	 * @author	WorHyako
+	 */
+	class TrackingCameraSpeaker final {
+	public:
+		/**
+		 * @brief  Ctor.
+		 */
+		TrackingCameraSpeaker() noexcept = default;
 
-        ~TrackingCameraSpeaker();
+		/**
+		 * @brief	Dtor.
+		 */
+		~TrackingCameraSpeaker() noexcept;
 
-        /**
-         * Try to open socket and run two thread to listen port and parse packet to data
-         * @param localIp_ local ip to lister
-         * @param localPort_ local port to listen
-         * @return successful open socket
-         */
-        bool startSpeaker(const std::string &localIp_, int16_t localPort_);
+		/**
+		 * @brief	Tries to open socket and run two thread to listen port and parse packet to data.
+		 *
+		 * @param	address		Local ip address to lister.
+		 *
+		 * @param	port		Local port to listen.
+		 *
+		 * @return	@code true @endcode		Started successfully.
+		 *			<p>
+		 *			@code false @endcode	Error in start speaker.
+		 */
+		bool startSpeaker(const std::string& address, std::uint16_t port) noexcept;
 
-        /**
-         * Close socket and join all threads
-         * @return false if nothing to stop (already stopped)
-         */
-        bool stopSpeaker();
+		/**
+		 * @brief	Closes socket and join all threads.
+		 *
+		 * @return	@code true @endcode		Successful stopping.
+		 *			<p>
+		 *			@code false @endcode	If nothing to stop (already stopped).
+		 */
+		bool stopSpeaker() noexcept;
 
-    private:
-        FreeDPacket _freedPacket;
-        ServerUdpSocket _server;
+	private:
+		/**
+		 * @brief	Field for parsing and operations with FreeD packets.
+		 */
+		FreeDPacket _freedPacket;
 
-        std::thread _receivingThread;
-        std::thread _parsingThread;
+		/**
+		 * @brief	Server to receive incoming packets.
+		 */
+		std::unique_ptr<Wor::Network::TcpServer> _server;
 
-        bool _speakerActivity;
+		/**
+		 * @brief	Waits notify from @b'_server' and copy buffer's data to parse by @b'_freedPacket'
+		 *			<p>
+		 *			Recommend to run to other thread/task.
+		 */
+		void parsePacket(const std::string& message) noexcept;
 
-        /**
-         * Wait notify from @b'_server' and copy buffer's data to parse by @b'_freedPacket'
-         * Recommended run to other thread/task
-         */
-        void parsePacket();
+	public:
+#pragma region Accessors/Mutators
 
-    public:
-#pragma region Accessors
+		/**
+		 * @brief	Remote device endpoint accessor.
+		 *
+		 * @return	Endpoint.
+		 */
+		[[nodiscard]]
+		boost::asio::ip::tcp::endpoint endPoint() const noexcept;
 
-        [[nodiscard]] const PointInfo &getPointInfo() const noexcept;
+		/**
+		 * @brief	Current speaker activity accessor.
+		 *
+		 * @return	@code true @endcode		Speaker is running.
+		 *			<p>
+		 *			@code false @endcode	Speaker is not running.
+		 */
+		[[nodiscard]]
+		bool speakerActivity() const noexcept;
 
-        [[nodiscard]] SocketState getServerState() const noexcept;
+		/**
+		 * @brief	Position accessor.
+		 *
+		 * @return	Device position.
+		 */
+		[[nodiscard]]
+		const Wor::Math::Vector::Vector3<float>& position() const noexcept;
 
-        [[nodiscard]] bool getSpeakerActivity() const noexcept;
+		/**
+		 * @brief	Rotation accessor.
+		 *
+		 * @return	Device rotation.
+		 */
+		[[nodiscard]]
+		const Wor::Math::Vector::Vector3<float>& rotation() const noexcept;
 
-        [[nodiscard]] const Vector3<float>& getPosition() const noexcept;
+		/**
+		 * @brief	Camera zoom accessor.
+		 *
+		 * @return	Zoom value.
+		 */
+		[[nodiscard]]
+		int zoom() const noexcept;
 
-        [[nodiscard]] const Vector3<float>& getRotation() const noexcept;
+		/**
+		 * @brief	Camera focus accessor.
+		 *
+		 * @return	Focus value.
+		 */
+		[[nodiscard]]
+		int focus() const noexcept;
 
-        [[nodiscard]] float getRz() const noexcept;
+		/**
+		 * @brief	TODO: fill it
+		 *
+		 * @return	Use fracture
+		 */
+		[[nodiscard]]
+		bool useFracture() const noexcept;
 
-        [[nodiscard]] float getRy() const noexcept;
+		/**
+		 * @brief	Returns camera data via string.
+		 *
+		 * @param	strViewFlag	String view flag to fill returning string.
+		 *
+		 * @return	Camera data string representation.
+		 */
+		[[nodiscard]]
+		std::string str(FreeDPacket::StrView strViewFlag) const noexcept;
 
-        [[nodiscard]] float getRx() const noexcept;
-
-        [[nodiscard]] float getX() const noexcept;
-
-        [[nodiscard]] float getY() const noexcept;
-
-        [[nodiscard]] float getZ() const noexcept;
-
-        [[nodiscard]] int getZoom() const noexcept;
-
-        [[nodiscard]] int getFocus() const noexcept;
-
-        [[nodiscard]] bool getUseFracture() const noexcept;
-
-        [[nodiscard]] const std::vector<std::byte> &getBuffer() const noexcept;
-
-#pragma endregion Accessors
-
-#pragma region Mutators
-
-        void setOsFlag(FreeDPacket::CameraDataType flag_) noexcept;
-
-        void setPacketLength(int packetLength_) noexcept;
-
-#pragma endregion Mutators
-
-#pragma region Operators
-
-        friend std::ostream &operator<<(std::ostream &os_, const TrackingCameraSpeaker &reader_);
-
-#pragma region Operators
-    };
+#pragma endregion Accessors/Mutators
+	};
 }
-#endif

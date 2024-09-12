@@ -1,5 +1,4 @@
-#ifndef TRACKINGCAMERASPEAKER_TCSWRAPPER_HPP
-#define TRACKINGCAMERASPEAKER_TCSWRAPPER_HPP
+#pragma once
 
 /**
  * This files (wrapper\\*.hpp and wrapper\\*.cpp) show simple way to use only dll with directly dllImport via WinAPI.
@@ -13,8 +12,6 @@
  */
 
 #include "speaker/TrackingCameraSpeaker.hpp"
-
-#include <fstream>
 
 extern const std::string password;
 extern const std::string passwordPath;
@@ -58,5 +55,3 @@ __declspec(dllexport) bool getServerActivity();
 __declspec(dllexport) bool getSpeakerActivity();
 }
 #pragma endregion Methods to Export
-
-#endif

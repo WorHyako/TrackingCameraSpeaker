@@ -1,48 +1,83 @@
-#ifndef TRACKINGCAMERASPEAKER_CAMERADATA_HPP
-#define TRACKINGCAMERASPEAKER_CAMERADATA_HPP
+#pragma once
 
-#include "vector/Vector3.hpp"
+#include "Wor/Vector/Vector3.hpp"
 
-namespace worTCS {
+namespace WorTCS {
+	/**
+	 * @brief	Store camera values and methods to data operations.
+	 *			<p>
+	 *			Validate this object via read @code empty @endcode field.
+	 *
+	 * @author	WorHyako
+	 */
+	struct CameraData final {
+		/**
+		 * @brief	Ctor.
+		 */
+		CameraData() noexcept;
 
-    /**
-     * Store camera values and methods to data operations
-     */
-    struct CameraData {
-    public:
-        Vector3<float> rotation;
-        Vector3<float> position;
-        int zoom, focus;
-        bool useFracture;
-        bool empty;
+		/**
+		 * @brief	Camera rotation.
+		 */
+		Wor::Math::Vector::Vector3<float> rotation;
 
-        explicit CameraData(float jointValue_ = -1.0f) noexcept;
+		/**
+		 * @brief	Camera position.
+		 */
+		Wor::Math::Vector::Vector3<float> position;
+
+		/**
+		 * @brief	Camera zoom.
+		 */
+		int zoom;
+
+		/**
+		 * @brief	Camera focus.
+		 */
+		int focus;
+
+		/**
+		 * @brief	Use fracture for camera data.
+		 */
+		bool useFracture;
+
+		/**
+		 * @brief	Is object has been filled or has default values.
+		 */
+		bool empty;
+
+		/**
+		 * @brief	Returns abs copy of all fields.
+		 *
+		 * @return	Abs value.
+		 */
+		[[nodiscard]]
+		CameraData absCameraData() const noexcept;
 
 #pragma region Operators
 
-        bool operator==(const CameraData &rhs_) const noexcept;
+		[[nodiscard]]
+		bool operator==(const CameraData& rhs) const noexcept;
 
-        bool operator!=(const CameraData &rhs_) const noexcept;
+		[[nodiscard]]
+		bool operator!=(const CameraData& rhs) const noexcept;
 
-        friend CameraData operator-(CameraData lhs_, float rhs_) noexcept;
+		friend CameraData operator-(CameraData lhs, float rhs) noexcept;
 
-        friend CameraData operator-(CameraData lhs_, CameraData rhs_) noexcept;
+		friend CameraData operator-(CameraData lhs, CameraData rhs) noexcept;
 
-        friend CameraData operator+(CameraData lhs_, CameraData rhs_) noexcept;
+		friend CameraData operator+(CameraData lhs, CameraData rhs) noexcept;
 
-        friend CameraData operator+(CameraData lhs_, float rhs_) noexcept;
+		friend CameraData operator+(CameraData lhs, float rhs) noexcept;
 
-        friend CameraData operator*(CameraData lhs_, CameraData rhs_) noexcept;
+		friend CameraData operator*(CameraData lhs, CameraData rhs) noexcept;
 
-        friend CameraData operator*(CameraData lhs_, float rhs_) noexcept;
+		friend CameraData operator*(CameraData lhs, float rhs) noexcept;
 
-        friend CameraData operator/(CameraData lhs_, CameraData rhs_) noexcept;
+		friend CameraData operator/(CameraData lhs, CameraData rhs) noexcept;
 
-        friend CameraData operator/(CameraData lhs_, float rhs_) noexcept;
-
-        CameraData absCameraData() noexcept;
+		friend CameraData operator/(CameraData lhs, float rhs) noexcept;
 
 #pragma endregion Operators
-    };
+	};
 }
-#endif

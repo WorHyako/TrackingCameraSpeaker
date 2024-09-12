@@ -3,6 +3,8 @@
 #define CHECK_PTR(ptr) if(!ptr) return false;
 #define CHECK_PTR_WITH_VAL(ptr, value) return ptr ? value : 0;
 
+#include <fstream>
+
 const std::string password = "CameraLikesTracking";
 const std::string passwordPath = "C:/Program Files (x86)/.password";
 

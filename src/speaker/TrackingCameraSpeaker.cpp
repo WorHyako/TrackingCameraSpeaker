@@ -1,145 +1,91 @@
 #include "speaker/TrackingCameraSpeaker.hpp"
 
-using namespace worTCS;
+#include "Wor/Network/Utils/IoService.hpp"
 
-TrackingCameraSpeaker::TrackingCameraSpeaker() {
-    _speakerActivity = false;
+using namespace WorTCS;
+using namespace Wor;
+
+TrackingCameraSpeaker::~TrackingCameraSpeaker() noexcept {
+	stopSpeaker();
 }
 
-TrackingCameraSpeaker::~TrackingCameraSpeaker() {
-    stopSpeaker();
+bool TrackingCameraSpeaker::startSpeaker(const std::string& address, std::uint16_t port) noexcept {
+	boost::asio::ip::tcp::endpoint localEndPoint;
+	localEndPoint.port(port);
+	auto endPointAddress = boost::asio::ip::address(boost::asio::ip::make_address_v4(address));
+	localEndPoint.address(endPointAddress);
+
+	if (!_server->bindTo(localEndPoint)) {
+		_server->stop();
+		return false;
+	}
+	if (_server->start(); !_server->isRunning()) {
+		return false;
+	}
+
+	Network::Utils::IoService::run();
+	return true;
 }
 
-bool TrackingCameraSpeaker::startSpeaker(const std::string &localIp_, int16_t localPort_) {
-    bool localPointDestination = worTCS::ServerUdpSocket::checkEndPoint(localIp_);
-    if (!localPointDestination) {
-        return false;
-    }
-    PointInfo pointInfo = PointInfo(localIp_, localPort_);
-    _server.setPointInfo(pointInfo);
-    _speakerActivity = _server.openSocket();
-    if (!_speakerActivity) {
-        return false;
-    }
+bool TrackingCameraSpeaker::stopSpeaker() noexcept {
+	if (!_server || !_server->isRunning()) {
+		return false;
+	}
 
-    _receivingThread = std::thread(&ServerUdpSocket::receivePacket, std::ref(_server));
-    _parsingThread = std::thread(&TrackingCameraSpeaker::parsePacket, std::ref(*this));
-    return true;
+	_server->stop();
+	return true;
 }
 
-bool TrackingCameraSpeaker::stopSpeaker() {
-    if (!_speakerActivity) {
-        return false;
-    }
-    _speakerActivity = false;
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
-    auto closeSocketResult = _server.closeSocket();
-    if (_receivingThread.joinable()) {
-        _receivingThread.join();
-    }
+void TrackingCameraSpeaker::parsePacket(const std::string& message) noexcept {
+	if (message.size() != FreeDPacket::length) {
+		return;
+	}
+	std::array<std::byte, FreeDPacket::length> dataArray{};
+	for (int i = 0; i < FreeDPacket::length; i++) {
+		dataArray[i] = static_cast<std::byte>(message[i]);
+	}
 
-    if (_parsingThread.joinable()) {
-        _parsingThread.join();
-    }
-    return closeSocketResult;
+	_freedPacket.packetToData(dataArray);
 }
 
-void TrackingCameraSpeaker::parsePacket() {
-    auto waitServerTimeout = std::chrono::milliseconds(1);
-    while (_speakerActivity) {
-        std::vector<std::byte> dataVArray(FreeDPacket::freed_packet_length);
-        {
-            std::unique_lock<std::mutex> lock(_server._receivingMutex);
-            _server._dataReceived.wait_for(lock, waitServerTimeout);
-            dataVArray = _server.getPacket();
-        }
-        std::array<std::byte, FreeDPacket::freed_packet_length> dataArray{};
-        std::copy(dataVArray.begin(), dataVArray.begin() + FreeDPacket::freed_packet_length, dataArray.begin());
-        _freedPacket.packetToData(dataArray);
-    }
+#pragma region Accessors/Mutators
+
+boost::asio::ip::tcp::endpoint TrackingCameraSpeaker::endPoint() const noexcept {
+	if (!speakerActivity() || _server->sessionList().empty()) {
+		return {};
+	}
+	return _server->sessionList().front().get()->endpoint();
 }
 
-#pragma region Accessors
-
-const PointInfo &TrackingCameraSpeaker::getPointInfo() const noexcept {
-    return _server.getPointInfo();
+bool TrackingCameraSpeaker::speakerActivity() const noexcept {
+	if (!_server) {
+		return false;
+	}
+	return _server->isRunning();
 }
 
-SocketState TrackingCameraSpeaker::getServerState() const noexcept {
-    return _server.getSocketState();
+int TrackingCameraSpeaker::zoom() const noexcept {
+	return _freedPacket.cameraData().zoom;
 }
 
-bool TrackingCameraSpeaker::getSpeakerActivity() const noexcept {
-    return _speakerActivity;
+int TrackingCameraSpeaker::focus() const noexcept {
+	return _freedPacket.cameraData().focus;
 }
 
-float TrackingCameraSpeaker::getRz() const noexcept {
-    return _freedPacket.getRotation().z;
+bool TrackingCameraSpeaker::useFracture() const noexcept {
+	return _freedPacket.useFracture();
 }
 
-float TrackingCameraSpeaker::getRy() const noexcept {
-    return _freedPacket.getRotation().y;
+const Math::Vector::Vector3<float>& TrackingCameraSpeaker::rotation() const noexcept {
+	return _freedPacket.cameraData().rotation;
 }
 
-float TrackingCameraSpeaker::getRx() const noexcept {
-    return _freedPacket.getRotation().x;
+const Math::Vector::Vector3<float>& TrackingCameraSpeaker::position() const noexcept {
+	return _freedPacket.cameraData().position;
 }
 
-float TrackingCameraSpeaker::getX() const noexcept {
-    return _freedPacket.getPosition().x;
+std::string TrackingCameraSpeaker::str(FreeDPacket::StrView strViewFlag) const noexcept {
+	return _freedPacket.str(strViewFlag);
 }
 
-float TrackingCameraSpeaker::getY() const noexcept {
-    return _freedPacket.getPosition().y;
-}
-
-float TrackingCameraSpeaker::getZ() const noexcept {
-    return _freedPacket.getPosition().z;
-}
-
-int TrackingCameraSpeaker::getZoom() const noexcept {
-    return _freedPacket.getZoom();
-}
-
-int TrackingCameraSpeaker::getFocus() const noexcept {
-    return _freedPacket.getFocus();
-}
-
-bool TrackingCameraSpeaker::getUseFracture() const noexcept {
-    return _freedPacket.getUseFracture();
-}
-
-const std::vector<std::byte> &TrackingCameraSpeaker::getBuffer() const noexcept {
-    return _server.getPacket();
-}
-
-const Vector3<float> &TrackingCameraSpeaker::getRotation() const noexcept {
-    return _freedPacket.getRotation();
-}
-
-const Vector3<float> &TrackingCameraSpeaker::getPosition() const noexcept {
-    return _freedPacket.getPosition();
-}
-
-#pragma endregion Accessors
-
-#pragma region Mutators
-
-void TrackingCameraSpeaker::setOsFlag(FreeDPacket::CameraDataType flag_) noexcept {
-    _freedPacket._streamFlag = flag_;
-}
-
-#pragma endregion Mutators
-
-#pragma region Operators
-
-std::ostream &worTCS::operator<<(std::ostream &os_, const TrackingCameraSpeaker &reader_) {
-    os_ << reader_._freedPacket;
-    return os_;
-}
-
-void TrackingCameraSpeaker::setPacketLength(int packetLength_) noexcept {
-    _server.setPacketLength(packetLength_);
-}
-
-#pragma region Operators
+#pragma endregion Accessors/Mutators

@@ -1,78 +1,182 @@
-#ifndef TRACKINGCAMERASPEAKER_FREEDPACKET_HPP
-#define TRACKINGCAMERASPEAKER_FREEDPACKET_HPP
+#pragma once
 
 #include "freeD/CameraData.hpp"
 #include "freeD/PartialBuffer.hpp"
 
-#include <sstream>
+namespace WorTCS {
+	/**
+	 * @brief	Class to convert received packet to camera data and store result.
+	 *
+	 * @author  WorHyako
+	 */
+	class FreeDPacket final {
+	public:
+		/**
+		 * @brief	FreeD protocol packet length.
+		 */
+		static constexpr std::uint8_t length = 29;
 
-namespace worTCS {
+		/**
+		 * @brief	Represents flag to @code FreeDPacket @endcode string representation.
+		 *
+		 * @usage
+		 * @code
+		 *			auto strView = StrView::Pos | StrView::Rot;
+		 * @endcode
+		 *
+		 * @author	WorHyako
+		 */
+		enum class StrView
+				: std::uint8_t {
+			/**
+			 * @brief	Show lens data.
+			 */
+			Lens = 0b1,
+			/**
+			 * @brief	Show position data.
+			 */
+			Pos = 0b01,
+			/**
+			 * @brief	Show rotation data.
+			 */
+			Rot = 0b001
+		};
 
-    /**
-     * Class to convert received packet to camera data and store result
-     */
-    class FreeDPacket final {
-    public:
-        enum class CameraDataType {
-            LOC_ROT_LENS, LOC_ROT, LOC, ROT, LENS, ROT_LENS, LOC_LENS,
-        } _streamFlag = CameraDataType::ROT;
+		/**
+		 * @brief	Ctor.
+		 */
+		FreeDPacket() noexcept = default;
 
-        FreeDPacket() = default;
+		/**
+		 * @brief	Parses packet to data: x, y, z, rx, ry, rz, zoom, focus.
+		 *			<p>
+		 *			Uses PartialBuffer to repair broken packet.
+		 *			<p>
+		 *			Fold data (in future).
+		 *
+		 * @param	data Packet to parse.
+		 *
+		 * @see		@code PartialBuffer @endcode
+		 */
+		void packetToData(const std::array<std::byte, length>& data);
 
-        /// freeD protocol packet length
-        static constexpr int freed_packet_length = 29;
+	private:
+		/**
+		 * @brief	Actual camera data from remote device.
+		 */
+		CameraData _cameraData;
 
-        /**
-         * Parse packet to data: x, y, z, rx, ry, rz, zoom, focus
-         * Use PartialBuffer to repair broken packet
-         * Fold data (in future)
-         * @param data_ packet to parse
-         */
-        void packetToData(const std::array<std::byte, freed_packet_length> &data_);
+		/**
+		 * @brief	Partial buffer helps to repair packet when packets start to have offset.
+		 */
+		PartialBuffer _partialBuffer;
 
-    private:
-        CameraData _cameraData;
+		/**
+		 * @brief	Parses selected bytes pack to calculate device rotation angle.
+		 *
+		 * @param	a The first byte.
+		 *
+		 * @param	b The second byte.
+		 *
+		 * @param	c The third byte.
+		 *
+		 * @return	Calculated rotation angle.
+		 */
+		[[nodiscard]]
+		float bytesToAngles(std::byte a, std::byte b, std::byte c) const noexcept;
 
-        PartialBuffer _partialBuffer;
+		/**
+		 * @brief	Parses selected bytes pack to calculate device position.
+		 *
+		 * @param	a The first byte.
+		 *
+		 * @param	b The second byte.
+		 *
+		 * @param	c The third byte.
+		 *
+		 * @return	Calculated position.
+		 */
+		[[nodiscard]]
+		float bytesToLocation(std::byte a, std::byte b, std::byte c) const noexcept;
 
-        [[nodiscard]] float bytesToAngles(const std::byte &a_, const std::byte &b_, const std::byte &c_) const noexcept;
+		/**
+		 * @brief	Parses selected bytes pack to calculate device lens.
+		 *
+		 * @param	a The first byte.
+		 *
+		 * @param	b The second byte.
+		 *
+		 * @param	c The third byte.
+		 *
+		 * @return	Calculated lens.
+		 */
+		[[nodiscard]]
+		int bytesToLens(std::byte a, std::byte b, std::byte c) const noexcept;
 
-        [[nodiscard]] float bytesToLocation(const std::byte &a_, const std::byte &b_, const std::byte &c_) const noexcept;
+	public:
+#pragma region Accessors/Mutators
 
-        [[nodiscard]] int bytesToLens(const std::byte &a_, const std::byte &b_,const  std::byte &c_) const noexcept;
+		/**
+		 * @brief   Camera data accessor.
+		 *
+		 * @return  Camera data.
+		 *
+		 * @see     @code CameraData @endcode.
+		 */
+		[[nodiscard]]
+		const CameraData& cameraData() const noexcept;
 
-    public:
-#pragma region Accessors
+		/**
+		 * @brief	Use fracture accessor.
+		 *
+		 * @return	Use fracture.
+		 */
+		[[nodiscard]]
+		bool useFracture() const noexcept;
 
-        [[nodiscard]] const Vector3<float> &getPosition() const noexcept;
+		/**
+		 * @brief	Use fracture mutator.
+		 *
+		 * @param	fracture Use fracture.
+		 */
+		void useFracture(bool fracture) noexcept;
 
-        [[nodiscard]] const Vector3<float> &getRotation() const noexcept;
+		/**
+		 * @brief	Returns camera data via string.
+		 *
+		 * @param	strViewFlag	String view flag to fill returning string.
+		 */
+		[[nodiscard]]
+		std::string str(StrView strViewFlag) const noexcept;
 
-        [[nodiscard]] int getZoom() const noexcept;
+#pragma endregion Accessors/Mutators
+	};
 
-        [[nodiscard]] int getFocus() const noexcept;
+	/**
+	 * @brief	Operator
+	 *
+	 * @param	lhs	Left hand side object.
+	 *
+	 * @param	rhs	Right hand side object.
+	 *
+	 * @return
+	 *
+	 * @author	WorHyako
+	 */
+	[[nodiscard]]
+	FreeDPacket::StrView operator|(FreeDPacket::StrView lhs, FreeDPacket::StrView rhs) noexcept;
 
-        [[nodiscard]] bool getUseFracture() const noexcept;
-
-        [[nodiscard]] std::string getRotationViaString() const noexcept;
-
-        [[nodiscard]] std::string getLocationViaString() const noexcept;
-
-        [[nodiscard]] std::string getLensViaString() const noexcept;
-
-#pragma endregion Accessors
-
-#pragma region Mutators
-
-        void setUseFracture(bool fracture_) noexcept;
-
-#pragma endregion Mutators
-
-#pragma region Operators
-
-        friend std::ostream &operator<<(std::ostream &os_, const FreeDPacket &freeDPacket_);
-
-#pragma endregion Operators
-    };
+	/**
+	 * @brief
+	 *
+	 * @param	lhs	Left hand side object.
+	 *
+	 * @param	rhs Right hand side object.
+	 *
+	 * @return
+	 *
+	 * @author	WorHyako
+	 */
+	[[nodiscard]]
+	bool operator&(FreeDPacket::StrView lhs, FreeDPacket::StrView rhs) noexcept;
 }
-#endif

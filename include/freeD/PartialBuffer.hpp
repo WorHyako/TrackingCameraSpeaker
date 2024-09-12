@@ -1,43 +1,113 @@
-#ifndef TRACKINGCAMERASPEAKER_PARTIALBUFFER_HPP
-#define TRACKINGCAMERASPEAKER_PARTIALBUFFER_HPP
+#pragma once
 
 #include <array>
 #include <string>
 
-namespace worTCS {
+namespace WorTCS {
+	/**
+	 * @brief	Class to repair packet and fold data.
+	 *
+	 * @usage
+	 * @code
+	 *			PartialBuffer buffer;
+	 *			buffer.tryToAppendNewData(data);
+	 *			if (!(buffer.completed() && buffer.valid())) {
+	 *				...
+	 *			}
+	 *			/// Ready to parse buffer.
+	 * @endcode
+	 *
+	 * @author	WorHyako
+	 */
+	class PartialBuffer final {
+	public:
+		/**
+		 * @brief	Partial buffer length.
+		 *			<p>
+		 *			It's equal with FreeD packet length.
+		 */
+		static constexpr std::size_t length = 29;
 
-    constexpr int partial_buffer_length = 29;
+		/**
+		 * @brief	Ctor.
+		 */
+		PartialBuffer() noexcept;
 
-    /**
-     * Class to repair packet and fold data
-     */
-    class PartialBuffer final {
-    public:
-        PartialBuffer() noexcept;
+		/**
+		 * @brief	Tries to append new data to current and fixes if it needed.
+		 *
+		 * @param	newData	New incoming packet.
+		 */
+		void tryToAppendNewData(const std::array<std::byte, length>& newData);
 
-        void tryToAppendNewData(const std::array<std::byte, partial_buffer_length> &newData_);
+		/**
+		 * @brief	Validates checksum for packet.
+		 *			<p>
+		 *			Valid packet's checksum place in the last byte.
+		 *
+		 * @param	byteArray Packet to validate.
+		 *
+		 * @return	@code true @endcode		Valid packet.
+		 *			<p>
+		 *			@code false @endcode	Invalid packet.
+		 */
+		[[nodiscard]]
+		bool checkChecksum(const std::array<std::byte, length>& byteArray) const;
 
-        [[nodiscard]] bool checkChecksum(const std::array<std::byte, partial_buffer_length> &byteArray_) const;
+	private:
+		/**
+		 * @brief	Packet to parse.
+		 */
+		std::array<std::byte, length> _packet{};
 
-    private:
-        std::array<std::byte, partial_buffer_length> _packet{};
+		/**
+		 * @brief	Packet's byte offset.
+		 */
+		int _deltaByte;
 
-        int _deltaByte;
+		/**
+		 * @brief	Packet signalize.
+		 */
+		bool _packetValid;
 
-        bool _packetValid;
+		/**
+		 * @brief	Complete packet is packet which begins with 0xD1 symbol.
+		 */
+		bool _packetComplete;
 
-        bool _packetComplete;
+	public:
+#pragma region Accessors/Mutators
 
-    public:
-#pragma region Accessors
+		/**
+		 * @brief	Returns packet to parse.
+		 *			<p>
+		 *			Packet may be invalid and uncompleted.
+		 *
+		 * @return	Packet.
+		 */
+		[[nodiscard]]
+		const std::array<std::byte, length>& packet() const noexcept;
 
-        [[nodiscard]] const std::array<std::byte, partial_buffer_length> &getPacket() const noexcept;
+		/**
+		 * @brief	Validation is applying with checksum checking.
+		 *
+		 * @return	@code true @endcode		Packet is valid.
+		 *			<p>
+		 *			@code false @endcode	Packet is not valid.
+		 */
+		[[nodiscard]]
+		bool valid() const noexcept;
 
-        [[nodiscard]] bool isPacketValid() const noexcept;
+		/**
+		 * @brief	Check full packet to completed condition and signalize packet ready to parse.
+		 *
+		 * @return	@code true @endcode		Packet is completed.
+		 *			<p>
+		 *			@code false @endcode	Packet is not completed.
+		 */
+		[[nodiscard]]
+		bool completed() const noexcept;
 
-        [[nodiscard]] bool isPacketCompleted() const noexcept;
-
-#pragma endregion Accessors
-    };
+#pragma endregion Accessors/Mutators
+	};
 }
-#endif

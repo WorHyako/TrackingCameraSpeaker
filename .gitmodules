@@ -1,0 +1,3 @@
+[submodule "ThirdParty/WorLibrary"]
+	path = ThirdParty/WorLibrary
+	url = https://github.com/WorHyako/WorLibrary.git
