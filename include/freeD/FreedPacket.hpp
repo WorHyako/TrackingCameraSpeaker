@@ -7,7 +7,15 @@ namespace WorTCS {
 	/**
 	 * @brief	Class to convert received packet to camera data and store result.
 	 *
+	 * @usage
+	 * @code
+	 *			FreedPacket parser;
+	 *			parser.packetToData(dataArray);
+	 * @endcode
+	 *
 	 * @author  WorHyako
+	 *
+	 * @see		@code PartialBuffer @endcode
 	 */
 	class FreeDPacket final {
 	public:
@@ -21,7 +29,8 @@ namespace WorTCS {
 		 *
 		 * @usage
 		 * @code
-		 *			auto strView = StrView::Pos | StrView::Rot;
+		 *			auto strView = StrView::Pos
+		 *							| StrView::Rot;
 		 * @endcode
 		 *
 		 * @author	WorHyako

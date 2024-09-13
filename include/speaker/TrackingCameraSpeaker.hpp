@@ -14,11 +14,11 @@ namespace WorTCS {
 	 *			<p>
 	 *			Run two threads inside: receive packet and parse it to camera data
 	 *			The main purpose is to manage connection between @b'_freedPacket' and @b'_server'
+	 *			<p>
+	 *			God object.
 	 *
 	 * @usage
 	 * @code
-	 *			FreedPacket parser;
-	 *			parser.packetToData(dataArray);
 	 * @endcode
 	 *
 	 * @author	WorHyako
@@ -50,12 +50,8 @@ namespace WorTCS {
 
 		/**
 		 * @brief	Closes socket and join all threads.
-		 *
-		 * @return	@code true @endcode		Successful stopping.
-		 *			<p>
-		 *			@code false @endcode	If nothing to stop (already stopped).
 		 */
-		bool stopSpeaker() noexcept;
+		void stopSpeaker() noexcept;
 
 	private:
 		/**

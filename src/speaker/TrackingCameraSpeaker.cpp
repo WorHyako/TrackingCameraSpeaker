@@ -10,30 +10,33 @@ TrackingCameraSpeaker::~TrackingCameraSpeaker() noexcept {
 }
 
 bool TrackingCameraSpeaker::startSpeaker(const std::string& address, std::uint16_t port) noexcept {
-	boost::asio::ip::tcp::endpoint localEndPoint;
-	localEndPoint.port(port);
+	boost::asio::ip::tcp::endpoint endpoint;
+	endpoint.port(port);
 	auto endPointAddress = boost::asio::ip::address(boost::asio::ip::make_address_v4(address));
-	localEndPoint.address(endPointAddress);
+	endpoint.address(endPointAddress);
 
-	if (!_server->bindTo(localEndPoint)) {
+	if (!_server->bindTo(endpoint)) {
 		_server->stop();
 		return false;
 	}
 	if (_server->start(); !_server->isRunning()) {
 		return false;
 	}
+	_server->receiveCallback(endpoint,
+							 [this](const std::string& message) {
+								 parsePacket(message);
+							 });
 
 	Network::Utils::IoService::run();
 	return true;
 }
 
-bool TrackingCameraSpeaker::stopSpeaker() noexcept {
+void TrackingCameraSpeaker::stopSpeaker() noexcept {
 	if (!_server || !_server->isRunning()) {
-		return false;
+		return;
 	}
 
 	_server->stop();
-	return true;
 }
 
 void TrackingCameraSpeaker::parsePacket(const std::string& message) noexcept {
