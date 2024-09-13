@@ -103,15 +103,14 @@ float FreeDPacket::bytesToLocation(std::byte a_, std::byte b_, std::byte c_) con
 int FreeDPacket::bytesToLens(std::byte a_, std::byte b_, std::byte c_) const noexcept {
 	if (_cameraData.useFracture) {
 		return static_cast<int>((b_ << 8) | c_);
-	} else {
-		const bool sign = (static_cast<int>(a_) & 0b10000000) > 0;
-		int temp = static_cast<int>((a_ << 16) | (b_ << 8) | c_);
-
-		if (sign) {
-			temp = (~temp) & 0b111111111111111111111111;
-		}
-		return sign ? -temp : temp;
 	}
+	const bool sign = (static_cast<int>(a_) & 0b10000000) > 0;
+	int temp = static_cast<int>((a_ << 16) | (b_ << 8) | c_);
+
+	if (sign) {
+		temp = (~temp) & 0b111111111111111111111111;
+	}
+	return sign ? -temp : temp;
 }
 
 #pragma region Accessors/Mutators
@@ -126,6 +125,10 @@ bool FreeDPacket::useFracture() const noexcept {
 
 void FreeDPacket::useFracture(bool fracture_) noexcept {
 	_cameraData.useFracture = fracture_;
+}
+
+const std::array<std::byte, FreeDPacket::length>& FreeDPacket::rawBuffer() const noexcept {
+	return _partialBuffer.packet();
 }
 
 std::string FreeDPacket::str(StrView strViewFlag) const noexcept {

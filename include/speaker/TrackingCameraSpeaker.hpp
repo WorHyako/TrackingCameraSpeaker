@@ -22,6 +22,9 @@ namespace WorTCS {
 	 * @endcode
 	 *
 	 * @author	WorHyako
+	 *
+	 * @see		@code FreedPacket @endcode
+	 * @see		@code Wor::Network::TcpServer @endcode
 	 */
 	class TrackingCameraSpeaker final {
 	public:
@@ -65,9 +68,9 @@ namespace WorTCS {
 		std::unique_ptr<Wor::Network::TcpServer> _server;
 
 		/**
-		 * @brief	Waits notify from @b'_server' and copy buffer's data to parse by @b'_freedPacket'
+		 * @brief	Parses incoming message via FreeD protocol.
 		 *			<p>
-		 *			Recommend to run to other thread/task.
+		 *			Recommend to use as callback on receive message from @code TcpServer @endcode.
 		 */
 		void parsePacket(const std::string& message) noexcept;
 
@@ -75,9 +78,19 @@ namespace WorTCS {
 #pragma region Accessors/Mutators
 
 		/**
+		 * @brief	Raw buffer accessor from @code FreedPacket @endcode.
+		 *
+		 * @return	Raw buffer.
+		 */
+		[[nodiscard]]
+		const std::array<std::byte, FreeDPacket::length>& rawBuffer() const noexcept;
+
+		/**
 		 * @brief	Remote device endpoint accessor.
 		 *
 		 * @return	Endpoint.
+		 *			<p>
+		 *			Empty endpoint if there is no active sessions.
 		 */
 		[[nodiscard]]
 		boost::asio::ip::tcp::endpoint endPoint() const noexcept;

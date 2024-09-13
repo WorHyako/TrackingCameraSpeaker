@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(worTCS_DLL
+project(WorTCS
         VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -19,49 +19,30 @@ list(APPEND Sources ${Source})
 file(GLOB Source src/speaker/*.cpp)
 list(APPEND Sources ${Source})
 
-# ------------------------------------------------------------------------------------------ #
-# If u want to directly export via WinAPI functions entry point with just TCSSpeaker handle, #
-# uncomment lines 32-33 of code and comment all the rest                                     #
-# ------------------------------------------------------------------------------------------ #
-#add_library(worTCS STATIC ${worTS_src}
-#        src/wrapper/TCSWrapper.cpp)
-
 # Configure link and compile process #
 if (WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif ()
 set(CMAKE_DEBUG_POSTFIX d)
 
-add_library(worTCS)
-target_sources(worTCS
+add_library(WorTCS)
+add_library(Wor::TCS ALIAS WorTCS)
+target_sources(WorTCS
         PRIVATE ${Sources})
-target_include_directories(worTCS
+target_include_directories(WorTCS
         PUBLIC include)
-target_link_libraries(worTCS
-        PRIVATE
+target_link_libraries(WorTCS
+        PUBLIC
         Wor::Network
         Wor::Math)
 
-# Next project usually locate at another projects
-
-# ---------------------------------------- #
-# Project to check TCS as external module  #
-# ---------------------------------------- #
-#project(worTCS_DllTest)
-#set(CMAKE_CXX_STANDARD 17)
-#
-#set(worTCS_DIR C:/bibles/worTCS)
-#find_package(worTCS)
-#
-#add_executable(worTCS_DllTest TCS_UserExample.cpp)
-#target_link_libraries(worTCS_DllTest worTCS)
-#
 # ---------------------------------------- #
 # Project to check TCS as internal source  #
 # ---------------------------------------- #
-#project(worTCS_ExeTest)
-#set(CMAKE_CXX_STANDARD 17)
-#
-#add_executable(worTCS_ExeTest TCS_UserExample.cpp ${worTCS_Sources})
-#target_link_libraries(worTCS_ExeTest ws2_32 iphlpapi.lib)
-#target_include_directories(worTCS_ExeTest PUBLIC ${worTCS_Include_Root})
+add_executable(WorTCS_ExeTest)
+target_sources(WorTCS_ExeTest
+        PRIVATE TCS_UserExample.cpp)
+target_link_libraries(WorTCS_ExeTest
+        PRIVATE
+        Wor::TCS
+        spdlog::spdlog)

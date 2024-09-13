@@ -151,6 +151,14 @@ namespace WorTCS {
 		void useFracture(bool fracture) noexcept;
 
 		/**
+		 * @brief	Raw buffer accessor from @code PartialBuffer @endcode.
+		 *
+		 * @return	Raw buffer.
+		 */
+		[[nodiscard]]
+		const std::array<std::byte, FreeDPacket::length>& rawBuffer() const noexcept;
+
+		/**
 		 * @brief	Returns camera data via string.
 		 *
 		 * @param	strViewFlag	String view flag to fill returning string.

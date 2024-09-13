@@ -1,5 +1,7 @@
 #include "speaker/TrackingCameraSpeaker.hpp"
 
+#include <memory>
+
 #include "Wor/Network/Utils/IoService.hpp"
 
 using namespace WorTCS;
@@ -15,6 +17,7 @@ bool TrackingCameraSpeaker::startSpeaker(const std::string& address, std::uint16
 	auto endPointAddress = boost::asio::ip::address(boost::asio::ip::make_address_v4(address));
 	endpoint.address(endPointAddress);
 
+	_server = std::make_unique<Network::TcpServer>();
 	if (!_server->bindTo(endpoint)) {
 		_server->stop();
 		return false;
@@ -53,6 +56,10 @@ void TrackingCameraSpeaker::parsePacket(const std::string& message) noexcept {
 
 #pragma region Accessors/Mutators
 
+const std::array<std::byte, FreeDPacket::length>& TrackingCameraSpeaker::rawBuffer() const noexcept {
+	return _freedPacket.rawBuffer();
+}
+
 boost::asio::ip::tcp::endpoint TrackingCameraSpeaker::endPoint() const noexcept {
 	if (!speakerActivity() || _server->sessionList().empty()) {
 		return {};
@@ -61,10 +68,7 @@ boost::asio::ip::tcp::endpoint TrackingCameraSpeaker::endPoint() const noexcept 
 }
 
 bool TrackingCameraSpeaker::speakerActivity() const noexcept {
-	if (!_server) {
-		return false;
-	}
-	return _server->isRunning();
+	return _server || _server->isRunning();
 }
 
 int TrackingCameraSpeaker::zoom() const noexcept {
