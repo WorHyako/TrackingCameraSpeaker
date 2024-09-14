@@ -12,13 +12,21 @@ namespace WorTCS {
 	 * @brief	Class provides receiving UDP messages (protocol freeD) from socket
 	 *			and convert it to camera position, rotation, zoom, focus.
 	 *			<p>
-	 *			Run two threads inside: receive packet and parse it to camera data
-	 *			The main purpose is to manage connection between @b'_freedPacket' and @b'_server'
+	 *			The main purpose is to manage connection between
+	 *			@code FreedPacket @endcode and @code TcpServer @endcode.
 	 *			<p>
 	 *			God object.
 	 *
 	 * @usage
 	 * @code
+	 *			TrackingCameraSpeaker speaker;
+	 *			std::string address = "127.0.0.1";
+	 *			std::uint16_t port = 6000;
+	 *			if(!speaker.startSpeaker(address, port)) {
+	 *				...
+	 *			}
+	 *			auto rawBuffer = speaker.rowBuffer();
+	 *			auto rotation = speaker.rotation();
 	 * @endcode
 	 *
 	 * @author	WorHyako

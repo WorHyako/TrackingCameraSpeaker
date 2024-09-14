@@ -10,6 +10,7 @@ int main() {
 	if (!reader.startSpeaker(targetAddress, targetPort)) {
 		return 20;
 	}
+
 	while (true) {
 		const auto buffer = reader.rawBuffer();
 		std::stringstream ss;

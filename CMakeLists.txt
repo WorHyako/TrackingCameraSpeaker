@@ -12,18 +12,18 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 ################
 add_subdirectory(ThirdParty)
 
+# Configure link and compile process #
+if (WIN32)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif ()
+set(CMAKE_DEBUG_POSTFIX d)
+
 file(GLOB Source src/freeD/*.cpp)
 list(APPEND Sources ${Source})
 file(GLOB Source src/socket/*.cpp)
 list(APPEND Sources ${Source})
 file(GLOB Source src/speaker/*.cpp)
 list(APPEND Sources ${Source})
-
-# Configure link and compile process #
-if (WIN32)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif ()
-set(CMAKE_DEBUG_POSTFIX d)
 
 add_library(WorTCS)
 add_library(Wor::TCS ALIAS WorTCS)

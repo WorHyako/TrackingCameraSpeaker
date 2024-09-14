@@ -169,31 +169,9 @@ namespace WorTCS {
 #pragma endregion Accessors/Mutators
 	};
 
-	/**
-	 * @brief	Operator
-	 *
-	 * @param	lhs	Left hand side object.
-	 *
-	 * @param	rhs	Right hand side object.
-	 *
-	 * @return
-	 *
-	 * @author	WorHyako
-	 */
 	[[nodiscard]]
 	FreeDPacket::StrView operator|(FreeDPacket::StrView lhs, FreeDPacket::StrView rhs) noexcept;
 
-	/**
-	 * @brief
-	 *
-	 * @param	lhs	Left hand side object.
-	 *
-	 * @param	rhs Right hand side object.
-	 *
-	 * @return
-	 *
-	 * @author	WorHyako
-	 */
 	[[nodiscard]]
 	bool operator&(FreeDPacket::StrView lhs, FreeDPacket::StrView rhs) noexcept;
 }
