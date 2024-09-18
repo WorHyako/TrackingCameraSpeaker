@@ -45,7 +45,7 @@ int main() {
 		ss << reader.str(WorTCS::FreeDPacket::StrView::Rot
 						 | WorTCS::FreeDPacket::StrView::Pos
 						 | WorTCS::FreeDPacket::StrView::Lens);
-		spdlog::info(ss.str());
+		worInfo(ss.str());
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	}
 	return 0;

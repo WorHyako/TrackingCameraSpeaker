@@ -32,7 +32,7 @@ namespace WorTCS {
 	 * @author	WorHyako
 	 *
 	 * @see		@code FreedPacket @endcode
-	 * @see		@code Wor::Network::TcpServer @endcode
+	 * @see		@code Wor::Network::UdpServer @endcode
 	 */
 	class TrackingCameraSpeaker final {
 	public:
