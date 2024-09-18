@@ -20,8 +20,6 @@ set(CMAKE_DEBUG_POSTFIX d)
 
 file(GLOB Source src/freeD/*.cpp)
 list(APPEND Sources ${Source})
-file(GLOB Source src/socket/*.cpp)
-list(APPEND Sources ${Source})
 file(GLOB Source src/speaker/*.cpp)
 list(APPEND Sources ${Source})
 
