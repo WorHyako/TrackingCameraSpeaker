@@ -3,7 +3,7 @@
 #include "freeD/FreedPacket.hpp"
 
 #include "Wor/Vector/Vector3.hpp"
-#include "Wor/Network/TcpServer.hpp"
+#include "Wor/Network/UdpServer.hpp"
 
 #include <memory>
 
@@ -36,6 +36,7 @@ namespace WorTCS {
 	 */
 	class TrackingCameraSpeaker final {
 	public:
+		using Server = Wor::Network::UdpServer;
 		/**
 		 * @brief  Ctor.
 		 */
@@ -57,6 +58,7 @@ namespace WorTCS {
 		 *			<p>
 		 *			@code false @endcode	Error in start speaker.
 		 */
+		[[nodiscard]]
 		bool startSpeaker(const std::string& address, std::uint16_t port) noexcept;
 
 		/**
@@ -73,7 +75,7 @@ namespace WorTCS {
 		/**
 		 * @brief	Server to receive incoming packets.
 		 */
-		std::unique_ptr<Wor::Network::TcpServer> _server;
+		std::unique_ptr<Server> _server;
 
 		/**
 		 * @brief	Parses incoming message via FreeD protocol.
@@ -101,7 +103,7 @@ namespace WorTCS {
 		 *			Empty endpoint if there is no active sessions.
 		 */
 		[[nodiscard]]
-		boost::asio::ip::tcp::endpoint endPoint() const noexcept;
+		Server::Endpoint endPoint() const noexcept;
 
 		/**
 		 * @brief	Current speaker activity accessor.
