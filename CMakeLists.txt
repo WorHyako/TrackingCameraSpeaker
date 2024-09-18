@@ -34,7 +34,8 @@ target_include_directories(WorTCS
 target_link_libraries(WorTCS
         PUBLIC
         Wor::Network
-        Wor::Math)
+        Wor::Math
+        Wor::Log)
 
 # ---------------------------------------- #
 # Project to check TCS as internal source  #
@@ -43,6 +44,4 @@ add_executable(WorTCS_ExeTest)
 target_sources(WorTCS_ExeTest
         PRIVATE TCS_UserExample.cpp)
 target_link_libraries(WorTCS_ExeTest
-        PRIVATE
-        Wor::TCS
-        spdlog::spdlog)
+        PRIVATE Wor::TCS)
