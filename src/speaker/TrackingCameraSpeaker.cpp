@@ -43,7 +43,7 @@ void TrackingCameraSpeaker::parsePacket(const std::string& message) noexcept {
 		return;
 	}
 	std::array<std::byte, FreeDPacket::length> dataArray{};
-	for (int i = 0; i < FreeDPacket::length; i++) {
+	for (int i{0}; i < FreeDPacket::length; i++) {
 		dataArray[i] = static_cast<std::byte>(message[i]);
 	}
 

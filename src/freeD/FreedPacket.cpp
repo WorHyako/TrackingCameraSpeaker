@@ -39,11 +39,11 @@ void FreeDPacket::packetToData(const std::array<std::byte, length>& data) {
 
 float FreeDPacket::bytesToAngles(std::byte a_, std::byte b_, std::byte c_) const noexcept {
 	/// Pre-cast to simple coding
-	const int a = static_cast<int>(a_);
-	const int b = static_cast<int>(b_);
-	const int c = static_cast<int>(c_);
+	const int a{static_cast<int>(a_)};
+	const int b{static_cast<int>(b_)};
+	const int c{static_cast<int>(c_)};
 
-	const bool negativeSign = (a & 0b10000000) > 0;
+	const bool negativeSign{(a & 0b10000000) > 0};
 	float value;
 
 	if (_cameraData.useFracture) {
@@ -71,9 +71,9 @@ float FreeDPacket::bytesToAngles(std::byte a_, std::byte b_, std::byte c_) const
 
 float FreeDPacket::bytesToLocation(std::byte a_, std::byte b_, std::byte c_) const noexcept {
 	/// Pre-cast to simple coding
-	const int a = static_cast<int>(a_);
-	const int b = static_cast<int>(b_);
-	const int c = static_cast<int>(c_);
+	const int a{static_cast<int>(a_)};
+	const int b{static_cast<int>(b_)};
+	const int c{static_cast<int>(c_)};
 
 	const bool negativeSign = (a & 0b10000000) > 0;
 	float value;
@@ -104,8 +104,8 @@ int FreeDPacket::bytesToLens(std::byte a_, std::byte b_, std::byte c_) const noe
 	if (_cameraData.useFracture) {
 		return static_cast<int>((b_ << 8) | c_);
 	}
-	const bool sign = (static_cast<int>(a_) & 0b10000000) > 0;
-	int temp = static_cast<int>((a_ << 16) | (b_ << 8) | c_);
+	const bool sign{(static_cast<int>(a_) & 0b10000000) > 0};
+	int temp{static_cast<int>((a_ << 16) | (b_ << 8) | c_)};
 
 	if (sign) {
 		temp = (~temp) & 0b111111111111111111111111;
@@ -133,23 +133,22 @@ const std::array<std::byte, FreeDPacket::length>& FreeDPacket::rawBuffer() const
 
 std::string FreeDPacket::str(StrView strViewFlag) const noexcept {
 	std::stringstream ss;
-	ss << "\nCompleted camera data:";
 	if (strViewFlag & StrView::Pos) {
-		ss << "\n\tPosition: "
-				<< "\n\t\tx: " << _cameraData.position.x
-				<< "\n\t\ty: " << _cameraData.position.y
-				<< "\n\t\tz: " << _cameraData.position.z;
+		ss << "Position: "
+				<< "\n\tx: " << _cameraData.position.x
+				<< "\n\ty: " << _cameraData.position.y
+				<< "\n\tz: " << _cameraData.position.z;
 	}
 	if (strViewFlag & StrView::Rot) {
-		ss << "\n\tRotation: "
-				<< "\n\t\trx: " << _cameraData.rotation.x
-				<< "\n\t\try: " << _cameraData.rotation.y
-				<< "\n\t\trz: " << _cameraData.rotation.z;
+		ss << "\nRotation: "
+				<< "\n\trx: " << _cameraData.rotation.x
+				<< "\n\try: " << _cameraData.rotation.y
+				<< "\n\trz: " << _cameraData.rotation.z;
 	}
 	if (strViewFlag & StrView::Lens) {
-		ss << "\n\tLens: "
-				<< "\n\t\tfocus: " << _cameraData.focus
-				<< "\n\t\tzoom: " << _cameraData.zoom;
+		ss << "\nLens: "
+				<< "\n\tfocus: " << _cameraData.focus
+				<< "\n\tzoom: " << _cameraData.zoom;
 	}
 	return ss.str();
 }

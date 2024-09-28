@@ -1,135 +1,121 @@
 # TrackingCameraSpeaker
 
-#### by Worshiper Hyakki Yakō(worHyako)
+### by Worshiper Hyakki Yakō(worHyako)
 
-This repo is designed to accept UDP packet (FreeD protocol) from local network and convert it to camera parameters:
+Library to to work UDP packet (FreeD protocol) from local network and convert it to camera parameters:
 position, rotation and lens value.
 
-[Using example file](https://github.com/WorHyako/TrackingCameraSpeaker/blob/main/TCS_UserExample.cpp) contains simple 
-code to use worTCS
-
 ---
-## Classes:
 
-### [TrackingCameraSpeaker](https://github.com/WorHyako/TrackingCameraSpeaker/blob/main/include/speaker/TrackingCameraSpeaker.hpp)
+## Platforms
 
-> This is your Speaker constructed as divine class-manager. Enjoy it.
-
-public:
-
-* ``` 
-  bool TrackingCameraSpeaker::startSpeaker(const std::string& localIp_, int16_t localPort_) 
-  ```
-  Open socket if possible and start receiving and parsing threads
-* ```
-  void TrackingCameraSpeaker::setPacketLength(int packetLength_) 
-  ```
-  Set buffer length to read incoming packet. FreeD protocol has 29-length packets, but Udp server has 256-length buffer
-  than default. Don't forget configure to 29, if u use usual FreeD format.
-* ```
-  SocketState TrackingCameraSpeaker::getServerState() 
-  ```
-  Remember check socket state due starting
-* ```
-  const Vector3<float>& TrackingCameraSpeaker::getPosition()
-  const Vector3<float>& TrackingCameraSpeaker::getRotation()
-  ```
-  Getters for camera parameters and position. See in Accessors region in code.
-
-* ``` 
-  bool stopSpeaker() 
-  ```
-  Shutdown speaker. Stop threads and close socket.
-
-private:
-
-* ``` 
-  void TrackingCameraSpeaker::parsePacket()
-  ```
-  Endless func used by Speaker's thread, that controls by _speakerActivity. Unfortunately nothing interesting
+- Windows (MSVC)
+- macOS
 
 ---
 
-### [FreedPacket](https://github.com/WorHyako/TrackingCameraSpeaker/blob/main/include/freeD/FreedPacket.hpp)
+## Dependencies
 
-> Contains information about the package and methods for data parsing
-
-public:
-
-* ``` 
-  std::string FreeDPacket::getRotationViaString()
-  ``` 
-  In addition to the above getters we have getters via string
-* ``` 
-  void FreeDPacket::packetToData(std::array<unsigned char, freed_packet_length> data_)
-  ```
-  Method for parsing a packet in write data to _cameraData field
-
-private:
-
-* ``` 
-  float FreeDPacket::bytesToAngles(const std::byte &a_, const std::byte &b_, const std::byte &c_)
-  ```
-  Float/int Angle/Location/Lens methods to calculate data from packet
+- WorLibrary [v0.7](https://github.com/WorHyako/WorLibrary/tree/5ef43c0)
+  - Network
+  - Log
+  - Math
 
 ---
 
-### [CameraData](https://github.com/WorHyako/TrackingCameraSpeaker/blob/main/include/freeD/CameraData.hpp)
+## Usage sample
 
-### [Vector](https://github.com/WorHyako/TrackingCameraSpeaker/blob/main/include/vector/Vector.hpp)
-
-### [Vector3](https://github.com/WorHyako/TrackingCameraSpeaker/blob/main/include/vector/Vector3.hpp) : Vector
-
-> Just for easy data manipulation
-
-* Literally just a set of operators, I swear
+[Example file](https://github.com/WorHyako/TrackingCameraSpeaker/blob/main/TCS_UserExample.cpp) contains simple
+code to use worTCS.
 
 ---
 
-### [PartialBuffer](https://github.com/WorHyako/TrackingCameraSpeaker/blob/main/include/freeD/PartialBuffer.hpp)
+### Basic usage
 
-> Temp place (buffer) to packet repairing
+```c++
+#include "Wor/Network/Utils/IoService.hpp"
+#include "speaker/TrackingCameraSpeaker.hpp"
 
-public:
+int main() {
+	constexpr std::string_view targetAddress = "127.0.0.1";
+	constexpr std::uint16_t targetPort = 6001;
+	
+	WorTCS::TrackingCameraSpeaker reader;
+	if (!reader.startSpeaker(targetAddress, targetPort)) {
+		/// Error
+		...
+	}
+	
+	Network::Utils::IoService::run();
 
-* ```
-  void PartialBuffer::tryToAppendNewData(const std::array<std::byte, partial_buffer_length> &newData_)
-  ```
-  Packet integrity check and calculation info for repairing if it's need
-* ```
-  bool PartialBuffer::checkChecksum(const std::array<std::byte, partial_buffer_length> &byteArray_)
-  ```
-  Check checksum in packet(tautology, but it's true)
+	Wor::Math::Vector::Vector3<float> position = reader.position();
+	Wor::Math::Vector::Vector3<float> rotation = reader.rotation();
+	int zoom = reader.zoom();
+	int focus = reader.focus();
+	
+	return 0;
+}
+```
 
 ---
 
-### [ServerUdpSocket](https://github.com/WorHyako/TrackingCameraSpeaker/blob/main/include/socket/ServerUdpSocket.hpp) : BaseSocket
+### Accessing to raw buffer
+```c++
+#include "Wor/Network/Utils/IoService.hpp"
+#include "speaker/TrackingCameraSpeaker.hpp"
 
-> Main class to accept packets
-
-Not so interesting. Just socket opening/closing and endless receiving func for Speaker's thread
+int main() {
+	constexpr std::string_view targetAddress{"127.0.0.1"};
+	constexpr std::uint16_t targetPort{6001};
+	
+	WorTCS::TrackingCameraSpeaker reader;
+	if (!reader.startSpeaker(targetAddress, targetPort)) {
+		/// Error
+		...
+	}
+	
+	Network::Utils::IoService::run();
+	
+	std::array<std::byte, WorTCS::FreeDPacket::length> buffer{reader.rawBuffer()}; 
+	
+	return 0;
+}
+```
 
 ---
 
-### [BaseSocket](https://github.com/WorHyako/TrackingCameraSpeaker/blob/main/include/socket/BaseSocket.hpp)
+### Debug/string view
+```c++
+#include "Wor/Network/Utils/IoService.hpp"
+#include "speaker/TrackingCameraSpeaker.hpp"
 
-> Abstract class for UDP (and TCP in future) socket
-
-public:
-
-* ```
-  static bool BaseSocket::checkEndPoint(const std::string &destinationIp_)
-  ```
-  Check destination address. This code has been a bit refactored, but belongs to some person (can't remember which one)
-* ```
-  const std::vector<std::byte> &BaseSocket::getPacket() 
-  ```
-  Return last incoming packet
-* ```
-  std::condition_variable _dataReceived
-  ```
-  CV-var to notify other threads to data received
-* ```
-  std::mutex _receivingMutex
-  ```
-  Mutex to control buffer accessing. Used by both Server and FreeDPacket
+int main() {
+	constexpr std::string_view targetAddress{"127.0.0.1"};
+	constexpr std::uint16_t targetPort{6001};
+	
+	WorTCS::TrackingCameraSpeaker reader;
+	if (!reader.startSpeaker(targetAddress, targetPort)) {
+		/// Error
+		...
+	}
+	
+	Network::Utils::IoService::run();
+	
+	std::string str{reader.str(WorTCS::FreeDPacket::StrView::Rot
+					    | WorTCS::FreeDPacket::StrView::Pos
+						| WorTCS::FreeDPacket::StrView::Lens);
+	/// str -> 
+	/// Position:
+	///     x: ...
+	///     y: ...
+	///     z: ...
+	/// Rotation:
+	///     rx: ...
+	///     ry: ...
+	///     rz: ...
+	/// Lens:
+	///     focus: ...
+	///     zoom: ...
+	return 0;
+}
+```

@@ -1,10 +1,7 @@
-#include <spdlog/spdlog.h>
-#include <Wor/Network/Utils/IoService.hpp>
-
 #include "speaker/TrackingCameraSpeaker.hpp"
-#include "Wor/Log/Log.hpp"
 
-#include "Wor/Network/UdpClient.hpp"
+#include "Wor/Log/Log.hpp"
+#include "Wor/Network/Utils/IoService.hpp"
 #include "Wor/Network/UdpServer.hpp"
 
 using namespace Wor;
@@ -12,27 +9,33 @@ using namespace Wor;
 int main() {
 	Log::configureLogger();
 
+	/**
+	 * Pseudo local server.
+	 */
 	Network::UdpServer server;
 	Network::UdpServer::Endpoint endpoint;
 	endpoint.port(6001);
 	auto address = boost::asio::ip::address(boost::asio::ip::make_address_v4("127.0.0.1"));
 	endpoint.address(address);
 	server.start(endpoint);
-	if(!server.bound()) {
+	if (!server.bound()) {
 		return 2;
 	}
-	Network::Utils::IoService::run();
-
-	const std::string targetAddress = "127.0.0.1";
-	constexpr int targetPort = 6001;
+	/**
+	 * Speaker part.
+	 */
+	constexpr std::string_view targetAddress{"127.0.0.1"};
+	constexpr std::uint16_t targetPort{6001};
 
 	WorTCS::TrackingCameraSpeaker reader;
-	if (!reader.startSpeaker(targetAddress, targetPort)) {
+	if (!reader.startSpeaker(targetAddress.data(), targetPort)) {
 		return 20;
 	}
 
+	Network::Utils::IoService::run();
+
 	while (true) {
-		const auto buffer = reader.rawBuffer();
+		const auto buffer{reader.rawBuffer()};
 		std::stringstream ss;
 		ss << "\nCurrent data:";
 		ss << "\n\tRaw buffer: ";

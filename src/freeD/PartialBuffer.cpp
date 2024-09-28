@@ -18,20 +18,20 @@ void PartialBuffer::tryToAppendNewData(const std::array<std::byte, length>& newD
 	}
 
 	if (!_packetComplete && _deltaByte) {
-		for (int i = 0; i < _deltaByte; i++) {
+		for (int i{0}; i < _deltaByte; i++) {
 			_packet[i + (_packet.size() - _deltaByte)] = newData[i];
 		}
 
 		_packetComplete = checkChecksum(_packet);
 	}
 
-	std::uint16_t index = 1;
-	for (auto it = (std::begin(newData) + 1); it < std::end(newData); it++, index++) {
+	std::uint16_t index{1};
+	for (auto it{std::begin(newData) + 1}; it < std::end(newData); it++, index++) {
 		if (static_cast<int>(*it) != 0xD1) {
 			continue;
 		}
 		_deltaByte = index;
-		std::uint16_t bufferIndex;
+		std::size_t bufferIndex;
 		std::uint16_t newDataIndex;
 		for (newDataIndex = index, bufferIndex = 0; newDataIndex < newData.size(); newDataIndex++, bufferIndex++) {
 			_packet[bufferIndex] = newData[newDataIndex];
@@ -45,7 +45,7 @@ void PartialBuffer::tryToAppendNewData(const std::array<std::byte, length>& newD
 }
 
 bool PartialBuffer::checkChecksum(const std::array<std::byte, length>& byteArray) const {
-	int checksum = 0x40;
+	int checksum{0x40};
 	std::for_each(std::begin(byteArray),
 				  std::end(byteArray),
 				  [&checksum](std::byte byte) {
