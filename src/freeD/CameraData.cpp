@@ -7,8 +7,7 @@ using namespace WorTCS;
 CameraData::CameraData() noexcept
 	: zoom(0),
 	  focus(0),
-	  useFracture(false),
-	  empty(true) {
+	  use_fracture(false) {
 }
 
 CameraData CameraData::absCameraData() const noexcept {
@@ -21,8 +20,7 @@ CameraData CameraData::absCameraData() const noexcept {
 	result.position.z = std::abs(position.z);
 	result.focus = std::abs(focus);
 	result.zoom = std::abs(zoom);
-	result.useFracture = false;
-	result.empty = true;
+	result.use_fracture = false;
 	return result;
 }
 

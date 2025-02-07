@@ -1,7 +1,5 @@
 # TrackingCameraSpeaker
 
-### by Worshiper Hyakki Yakō(worHyako)
-
 Library to to work UDP packet (FreeD protocol) from local network and convert it to camera parameters:
 position, rotation and lens value.
 
@@ -119,3 +117,5 @@ int main() {
 	return 0;
 }
 ```
+
+### by Worshiper Hyakki Yakō(worHyako)

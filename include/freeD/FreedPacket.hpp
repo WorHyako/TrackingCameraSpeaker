@@ -22,7 +22,7 @@ namespace WorTCS {
 		/**
 		 * @brief	FreeD protocol packet length.
 		 */
-		static constexpr std::uint8_t length = 29;
+		static constexpr std::uint8_t length{29};
 
 		/**
 		 * @brief	Represents flag to @code FreeDPacket @endcode string representation.
@@ -73,12 +73,12 @@ namespace WorTCS {
 		/**
 		 * @brief	Actual camera data from remote device.
 		 */
-		CameraData _cameraData;
+		CameraData _camera_data;
 
 		/**
 		 * @brief	Partial buffer helps to repair packet when packets start to have offset.
 		 */
-		PartialBuffer _partialBuffer;
+		PartialBuffer _partial_buffer;
 
 		/**
 		 * @brief	Parses selected bytes pack to calculate device rotation angle.
@@ -161,10 +161,10 @@ namespace WorTCS {
 		/**
 		 * @brief	Returns camera data via string.
 		 *
-		 * @param	strViewFlag	String view flag to fill returning string.
+		 * @param	str_view_flag	String view flag to fill returning string.
 		 */
 		[[nodiscard]]
-		std::string str(StrView strViewFlag) const noexcept;
+		std::string str(StrView str_view_flag) const noexcept;
 
 #pragma endregion Accessors/Mutators
 	};

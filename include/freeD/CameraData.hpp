@@ -39,12 +39,7 @@ namespace WorTCS {
 		/**
 		 * @brief	Use fracture for camera data.
 		 */
-		bool useFracture;
-
-		/**
-		 * @brief	Is object has been filled or has default values.
-		 */
-		bool empty;
+		bool use_fracture;
 
 		/**
 		 * @brief	Returns abs copy of all fields.

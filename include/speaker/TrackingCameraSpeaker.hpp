@@ -59,7 +59,7 @@ namespace WorTCS {
 		 *			@code false @endcode	Error in start speaker.
 		 */
 		[[nodiscard]]
-		bool startSpeaker(const std::string& address, std::uint16_t port) noexcept;
+		bool startSpeaker(const std::string_view& address, std::uint16_t port) noexcept;
 
 		/**
 		 * @brief	Closes socket and join all threads.
@@ -70,7 +70,7 @@ namespace WorTCS {
 		/**
 		 * @brief	Field for parsing and operations with FreeD packets.
 		 */
-		FreeDPacket _freedPacket;
+		FreeDPacket _freed_packet;
 
 		/**
 		 * @brief	Server to receive incoming packets.
@@ -82,7 +82,7 @@ namespace WorTCS {
 		 *			<p>
 		 *			Recommend to use as callback on receive message from @code TcpServer @endcode.
 		 */
-		void parsePacket(const std::string& message) noexcept;
+		void parsePacket(const std::string_view& message) noexcept;
 
 	public:
 #pragma region Accessors/Mutators
@@ -158,12 +158,12 @@ namespace WorTCS {
 		/**
 		 * @brief	Returns camera data via string.
 		 *
-		 * @param	strViewFlag	String view flag to fill returning string.
+		 * @param	str_view_flag	String view flag to fill returning string.
 		 *
 		 * @return	Camera data string representation.
 		 */
 		[[nodiscard]]
-		std::string str(FreeDPacket::StrView strViewFlag) const noexcept;
+		std::string str(FreeDPacket::StrView str_view_flag) const noexcept;
 
 #pragma endregion Accessors/Mutators
 	};

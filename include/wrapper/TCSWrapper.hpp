@@ -13,8 +13,8 @@
 
 #include "speaker/TrackingCameraSpeaker.hpp"
 
-extern const std::string password;
-extern const std::string passwordPath;
+extern const std::string_view password;
+extern const std::string_view passwordPath;
 
 class TCSWrapper final
         : public worTCS::TrackingCameraSpeaker {

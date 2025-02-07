@@ -5,8 +5,8 @@
 
 #include <fstream>
 
-const std::string password = "CameraLikesTracking";
-const std::string passwordPath = "C:/Program Files (x86)/.password";
+constexpr std::string_view password{"CameraLikesTracking"};
+constexpr std::string_view passwordPath{"C:/Program Files (x86)/.password"};
 
 bool initializeSpeaker() {
     CHECK_PTR(ptrTCSWrapper)

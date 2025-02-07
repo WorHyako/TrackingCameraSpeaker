@@ -9,11 +9,11 @@ TrackingCameraSpeaker::~TrackingCameraSpeaker() noexcept {
 	stopSpeaker();
 }
 
-bool TrackingCameraSpeaker::startSpeaker(const std::string& address, std::uint16_t port) noexcept {
+bool TrackingCameraSpeaker::startSpeaker(const std::string_view& address, std::uint16_t port) noexcept {
 	Server::Endpoint endpoint;
 	endpoint.port(port);
-	auto endPointAddress = boost::asio::ip::address(boost::asio::ip::make_address_v4(address));
-	endpoint.address(endPointAddress);
+	boost::asio::ip::address endpoint_address{boost::asio::ip::make_address_v4(address)};
+	endpoint.address(endpoint_address);
 
 	_server = std::make_unique<Server>();
 	_server->start(endpoint);
@@ -22,7 +22,7 @@ bool TrackingCameraSpeaker::startSpeaker(const std::string& address, std::uint16
 		return false;
 	}
 	_server->receiveCallback(endpoint,
-							 [this](const std::string& message) {
+							 [this](const std::string_view& message) {
 								 parsePacket(message);
 							 });
 
@@ -31,29 +31,29 @@ bool TrackingCameraSpeaker::startSpeaker(const std::string& address, std::uint16
 }
 
 void TrackingCameraSpeaker::stopSpeaker() noexcept {
-	if (!_server) {
+	if (_server == nullptr) {
 		return;
 	}
 
 	_server->stop();
 }
 
-void TrackingCameraSpeaker::parsePacket(const std::string& message) noexcept {
+void TrackingCameraSpeaker::parsePacket(const std::string_view& message) noexcept {
 	if (message.size() != FreeDPacket::length) {
 		return;
 	}
-	std::array<std::byte, FreeDPacket::length> dataArray{};
+	std::array<std::byte, FreeDPacket::length> data_array{};
 	for (int i{0}; i < FreeDPacket::length; i++) {
-		dataArray[i] = static_cast<std::byte>(message[i]);
+		data_array[i] = static_cast<std::byte>(message[i]);
 	}
 
-	_freedPacket.packetToData(dataArray);
+	_freed_packet.packetToData(data_array);
 }
 
 #pragma region Accessors/Mutators
 
 const std::array<std::byte, FreeDPacket::length>& TrackingCameraSpeaker::rawBuffer() const noexcept {
-	return _freedPacket.rawBuffer();
+	return _freed_packet.rawBuffer();
 }
 
 TrackingCameraSpeaker::Server::Endpoint TrackingCameraSpeaker::endPoint() const noexcept {
@@ -68,27 +68,27 @@ bool TrackingCameraSpeaker::speakerActivity() const noexcept {
 }
 
 int TrackingCameraSpeaker::zoom() const noexcept {
-	return _freedPacket.cameraData().zoom;
+	return _freed_packet.cameraData().zoom;
 }
 
 int TrackingCameraSpeaker::focus() const noexcept {
-	return _freedPacket.cameraData().focus;
+	return _freed_packet.cameraData().focus;
 }
 
 bool TrackingCameraSpeaker::useFracture() const noexcept {
-	return _freedPacket.useFracture();
+	return _freed_packet.useFracture();
 }
 
 const Math::Vector::Vector3<float>& TrackingCameraSpeaker::rotation() const noexcept {
-	return _freedPacket.cameraData().rotation;
+	return _freed_packet.cameraData().rotation;
 }
 
 const Math::Vector::Vector3<float>& TrackingCameraSpeaker::position() const noexcept {
-	return _freedPacket.cameraData().position;
+	return _freed_packet.cameraData().position;
 }
 
-std::string TrackingCameraSpeaker::str(FreeDPacket::StrView strViewFlag) const noexcept {
-	return _freedPacket.str(strViewFlag);
+std::string TrackingCameraSpeaker::str(FreeDPacket::StrView str_view_flag) const noexcept {
+	return _freed_packet.str(str_view_flag);
 }
 
 #pragma endregion Accessors/Mutators

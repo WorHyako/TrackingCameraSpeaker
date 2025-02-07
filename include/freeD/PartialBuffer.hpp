@@ -26,7 +26,7 @@ namespace WorTCS {
 		 *			<p>
 		 *			It's equal with FreeD packet length.
 		 */
-		static constexpr std::size_t length = 29;
+		static constexpr std::size_t length{29};
 
 		/**
 		 * @brief	Ctor.
@@ -36,44 +36,44 @@ namespace WorTCS {
 		/**
 		 * @brief	Tries to append new data to current and fixes if it needed.
 		 *
-		 * @param	newData	New incoming packet.
+		 * @param	new_data	New incoming packet.
 		 */
-		void tryToAppendNewData(const std::array<std::byte, length>& newData);
+		void tryToAppendNewData(const std::array<std::byte, length>& new_data);
 
 		/**
 		 * @brief	Validates checksum for packet.
 		 *			<p>
 		 *			Valid packet's checksum place in the last byte.
 		 *
-		 * @param	byteArray Packet to validate.
+		 * @param	byte_array Packet to validate.
 		 *
 		 * @return	@code true @endcode		Valid packet.
 		 *			<p>
 		 *			@code false @endcode	Invalid packet.
 		 */
 		[[nodiscard]]
-		bool checkChecksum(const std::array<std::byte, length>& byteArray) const;
+		bool checkChecksum(const std::array<std::byte, length>& byte_array) const;
 
 	private:
 		/**
 		 * @brief	Packet to parse.
 		 */
-		std::array<std::byte, length> _packet{};
+		std::array<std::byte, length> _packet;
 
 		/**
 		 * @brief	Packet's byte offset.
 		 */
-		int _deltaByte;
+		int _delta_byte;
 
 		/**
 		 * @brief	Packet signalize.
 		 */
-		bool _packetValid;
+		bool _packet_valid;
 
 		/**
 		 * @brief	Complete packet is packet which begins with 0xD1 symbol.
 		 */
-		bool _packetComplete;
+		bool _packet_complete;
 
 	public:
 #pragma region Accessors/Mutators
